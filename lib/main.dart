@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:main/pages/product/catalog_page.dart';
 import 'package:main/pages/main_page.dart';
 import 'package:main/pages/product/detail_product_page.dart';
+import 'package:main/pages/register_page.dart';
 import 'package:main/pages/welcome_page.dart';
 
 void main() {
@@ -30,7 +31,7 @@ class MyApp extends StatelessWidget {
         //   primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: MainPage(),
+      home: RegisterPage(),
     );
   }
 }

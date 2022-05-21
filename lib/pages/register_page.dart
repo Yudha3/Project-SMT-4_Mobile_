@@ -23,26 +23,65 @@ class _RegisterPageState extends State<RegisterPage> {
               child: Column(
                 children: [
                   SizedBox(
-                    height: 64,
+                    height: 30,
                   ),
                   Text(
                     "Register",
                     style: textHeadingDark,
                   ),
-                  SizedBox(
-                    height: 12,
-                  ),
-                  Image.asset(
-                    "assets/images/drawkit3.png",
-                    width: 200,
+                  Text(
+                    "Create Your Account Here",
+                    style: TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(
-                    height: 54,
+                    height: 45,
+                  ),
+                  TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      hintText: "Fullname",
+                      hintStyle: txtForm,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(width: 1, color: Color(0xFF818181))),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 18,
+                  ),
+                  TextFormField(
+                    keyboardType: TextInputType.emailAddress,
+                    decoration: InputDecoration(
+                      hintText: "Username",
+                      hintStyle: txtForm,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(width: 1, color: Color(0xFF818181))),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 18,
                   ),
                   TextFormField(
                     keyboardType: TextInputType.emailAddress,
                     decoration: InputDecoration(
                       hintText: "Email Address",
+                      hintStyle: txtForm,
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(12),
+                          borderSide:
+                              BorderSide(width: 1, color: Color(0xFF818181))),
+                    ),
+                  ),
+                  SizedBox(
+                    height: 18,
+                  ),
+                  TextFormField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      hintText: "Password",
                       hintStyle: txtForm,
                       suffixIcon: GestureDetector(
                         onTap: () {
@@ -65,7 +104,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   TextFormField(
                     obscureText: true,
                     decoration: InputDecoration(
-                      hintText: "Password",
+                      hintText: " Confirm Password",
                       hintStyle: txtForm,
                       suffixIcon: GestureDetector(
                         onTap: () {
@@ -103,7 +142,7 @@ class _RegisterPageState extends State<RegisterPage> {
                               borderRadius: BorderRadius.circular(16),
                             )),
                         onPressed: () {},
-                        child: Text("Login", style: buttonText20)),
+                        child: Text("Register", style: buttonText20)),
                   ),
                   SizedBox(
                     height: 8,
@@ -114,7 +153,7 @@ class _RegisterPageState extends State<RegisterPage> {
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
                         Text(
-                          'Not have account yet?',
+                          'Already have account?',
                           style: textRegister,
                         ),
                         // Text(" Register", style: textButtonRegister,),
