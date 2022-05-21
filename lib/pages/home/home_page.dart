@@ -9,8 +9,8 @@ import 'package:main/pages/profile/profile_page.dart';
 import 'package:main/pages/wishlist/wishlist_page.dart';
 import 'package:main/utils/colors.dart';
 import 'package:main/widgets/big_text.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:main/widgets/small_text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({Key? key}) : super(key: key);
@@ -20,6 +20,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  int? id;
+
+  void getID() async {
+    SharedPreferences pref = await SharedPreferences.getInstance();
+    setState(() {
+      id = (pref.getInt('id_user') ?? 0);
+    });
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getID();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -49,7 +65,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                       ),
                     ),
-                    BigText(text: "Beranda"),
+                    BigText(text: id.toString() + "- Beranda"),
                     IconButton(
                         onPressed: () {
                           Navigator.push(

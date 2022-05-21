@@ -20,8 +20,8 @@ class CatalogPage extends StatefulWidget {
 }
 
 class _CatalogPageState extends State<CatalogPage> {
-  List<Picsum> list = [];
-  List data = [];
+  List<Product> data = [];
+  // List data = [];
   // late Product product;
 
   List<ProductInfo> products = [
@@ -188,8 +188,8 @@ class _CatalogPageState extends State<CatalogPage> {
   }
 
   fetchData() async {
-    final response = await ApiService().get();
-    list.addAll(response);
+    final response = await ApiService().getAllProducts();
+    data.addAll(response);
     setState(() {});
   }
 
@@ -288,7 +288,7 @@ class _CatalogPageState extends State<CatalogPage> {
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
                   childAspectRatio: 0.76),
-              children: products
+              children: data
                   .map<Widget>((product) => ProductCard(
                         product: product,
                         id: product.id,

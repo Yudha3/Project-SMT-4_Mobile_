@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:main/models/model_product.dart';
+import 'package:main/models/product.dart';
 import 'package:main/pages/product/detail_product_page.dart';
 import 'package:main/utils/colors.dart';
 import 'package:main/widgets/product_text.dart';
 
 class ProductCard extends StatelessWidget {
-  final ProductInfo product;
+  final Product product;
   final int id;
   const ProductCard({Key? key, required this.product, required this.id})
       : super(key: key);
@@ -26,8 +27,8 @@ class ProductCard extends StatelessWidget {
                       // isFavorite: product.isFavorite,
                       price: product.price,
                       stock: product.stock,
-                      name: product.name,
-                      image: product.imgURL,
+                      name: product.title,
+                      image: product.image,
                       description:
                           id.toString() + " - " + product.description)));
         },
@@ -51,30 +52,31 @@ class ProductCard extends StatelessWidget {
           width: double.maxFinite,
           decoration: BoxDecoration(
             image: DecorationImage(
-                image: NetworkImage(product.imgURL), fit: BoxFit.cover),
+                image: NetworkImage(product.image), fit: BoxFit.cover),
             borderRadius: const BorderRadius.only(
               topLeft: Radius.circular(10),
               topRight: Radius.circular(10),
             ),
           ),
         ),
-        Positioned(
-          top: 8,
-          right: 16,
-          child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
-            Icon(
-              Icons.favorite_rounded,
-              size: 25,
-              color: product.isFavorite ? primaryColor : Colors.transparent,
-            )
-          ]),
-        )
+        // Positioned(
+        //   top: 8,
+        //   right: 16,
+        //   child: Row(mainAxisAlignment: MainAxisAlignment.end, children: [
+        //     Icon(
+        //       Icons.favorite_rounded,
+        //       size: 25,
+        //       color: product.isFavorite ? primaryColor : Colors.transparent,
+        //     )
+        //   ]),
+        // )
       ],
     );
   }
 
   Container buildBodyText(BuildContext context) {
     return Container(
+      width: double.maxFinite,
       decoration: BoxDecoration(
         borderRadius: const BorderRadius.only(
           bottomLeft: Radius.circular(10),
@@ -91,7 +93,7 @@ class ProductCard extends StatelessWidget {
             // width: 150,
             // height: 35,
             child: ProductText(
-              text: product.name,
+              text: product.title,
               size: 13,
             ),
           ),

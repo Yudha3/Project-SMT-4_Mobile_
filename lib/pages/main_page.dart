@@ -8,7 +8,7 @@ import 'package:main/pages/profile/profile_page.dart';
 import 'package:main/pages/wishlist/wishlist_page.dart';
 import 'package:main/utils/colors.dart';
 import 'package:main/widgets/big_text.dart';
-import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+// import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:main/widgets/small_text.dart';
 
 class MainPage extends StatefulWidget {

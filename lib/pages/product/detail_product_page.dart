@@ -1,5 +1,10 @@
+// import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
+import 'package:main/API/api_services.dart';
+import 'package:main/models/detail_product.dart';
+import 'package:main/models/product.dart';
 import 'package:main/pages/cart/cart_page.dart';
 import 'package:main/utils/colors.dart';
 import 'package:main/widgets/big_text.dart';
@@ -29,6 +34,22 @@ class DetailProductPage extends StatefulWidget {
 class _DetailProductPageState extends State<DetailProductPage> {
   // double _height = MediaQuery.of().size.height;
   static int qty = 1;
+  List<Product> data = [];
+  // String image = DetailProduct.
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    getDataProduct(widget.id);
+    setState(() {});
+  }
+
+  void getDataProduct(int id) async {
+    final response = await ApiService().getDetailProduct(id);
+    data.addAll(response);
+    setState(() {});
+  }
 
   void _decrement() {
     setState(() {
@@ -68,6 +89,7 @@ class _DetailProductPageState extends State<DetailProductPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Product data;
     return Scaffold(
         backgroundColor: bgWhite,
         body: SafeArea(

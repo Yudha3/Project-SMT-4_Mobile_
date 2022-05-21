@@ -1,4 +1,4 @@
-import 'package:intl/intl.dart';
+import 'dart:convert';
 
 class ProductInfo {
   //Now let's create the class constructor
@@ -93,6 +93,90 @@ class ProductInfo {
   }
 }
 
+// To parse this JSON data, do
+//
+//     final productModel = productModelFromJson(jsonString);
+
+ProductModel productModelFromJson(String str) =>
+    ProductModel.fromJson(json.decode(str));
+
+String productModelToJson(ProductModel data) => json.encode(data.toJson());
+
+class ProductModel {
+  ProductModel({
+    required this.message,
+    required this.data,
+  });
+
+  String message;
+  List<Datum> data;
+
+  factory ProductModel.fromJson(Map<String, dynamic> json) => ProductModel(
+        message: json["message"],
+        data: List<Datum>.from(json["data"].map((x) => Datum.fromJson(x))),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "message": message,
+        "data": List<dynamic>.from(data.map((x) => x.toJson())),
+      };
+}
+
+class Datum {
+  Datum({
+    required this.id,
+    required this.title,
+    required this.description,
+    required this.materials,
+    required this.price,
+    required this.stock,
+    required this.weight,
+    required this.sold,
+    required this.image,
+    required this.createdAt,
+    required this.updatedAt,
+  });
+
+  int id;
+  String title;
+  String description;
+  String materials;
+  int price;
+  int stock;
+  int weight;
+  int sold;
+  String image;
+  DateTime createdAt;
+  DateTime updatedAt;
+
+  factory Datum.fromJson(Map<String, dynamic> json) => Datum(
+        id: json["id"],
+        title: json["title"],
+        description: json["description"],
+        materials: json["materials"],
+        price: json["price"],
+        stock: json["stock"],
+        weight: json["weight"],
+        sold: json["sold"],
+        image: json["image"],
+        createdAt: DateTime.parse(json["created_at"]),
+        updatedAt: DateTime.parse(json["updated_at"]),
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "title": title,
+        "description": description,
+        "materials": materials,
+        "price": price,
+        "stock": stock,
+        "weight": weight,
+        "sold": sold,
+        "image": image,
+        "created_at": createdAt.toIso8601String(),
+        "updated_at": updatedAt.toIso8601String(),
+      };
+}
 
 
 
