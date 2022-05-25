@@ -1,4 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
+import 'package:main/API/api_services.dart';
+import 'package:main/models/user.dart';
 import 'package:main/pages/cart/cart_page.dart';
 import 'package:main/pages/orders/my_order_page.dart';
 import 'package:main/pages/wishlist/wishlist_page.dart';
@@ -15,10 +19,36 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  int currentIndex = 0;
-  void onTap(int index) {
+  bool _isLoading = true;
+  List<User> user = [];
+  String img = "";
+  String name = "";
+  String username = "";
+  String email = "";
+  String phone = "";
+  int carts = 0;
+  int wishlists = 7;
+  int orders = 2;
+
+  @override
+  void initState() {
+    super.initState();
+    fetchDataUser();
+  }
+
+  fetchDataUser() async {
+    final response = await ApiService().getUserData();
+    var body = json.decode(response.body);
+
     setState(() {
-      currentIndex = index;
+      _isLoading = true;
+      img = body['image'];
+      name = body['name'];
+      username = body['username'];
+      email = body['email'];
+      phone = body['phone'];
+      carts = body['carts'];
+      _isLoading = false;
     });
   }
 
@@ -27,301 +57,273 @@ class _ProfilePageState extends State<ProfilePage> {
     return Scaffold(
       backgroundColor: bgWhite,
       body: SafeArea(
-          child: Column(
-        children: [
-          Container(
-            width: double.maxFinite,
-            height: 60,
-            color: white,
-            padding: EdgeInsets.symmetric(horizontal: 6),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(
-                      Icons.arrow_back,
-                      size: 30,
-                    ),
+          child: _isLoading
+              ? Center(
+                  child: CircularProgressIndicator(
+                    backgroundColor: gray,
                     color: primaryColor,
+                    strokeWidth: 6,
                   ),
-                  BigText(text: "Profil Saya"),
-                  Icon(
-                    Icons.close,
-                    size: 30,
-                    color: Colors.transparent,
-                  ),
-                ]),
-          ),
-          Container(
-            color: white,
-            padding: EdgeInsets.only(left: 20, right: 16, top: 12, bottom: 20),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
+                )
+              : Column(
                   children: [
-                    CircleAvatar(
-                        radius: 34,
-                        child: CircleAvatar(
-                          backgroundImage:
-                              AssetImage("assets/images/avatar.png"),
-                          radius: 32,
-                        )),
-                    SizedBox(
-                      width: 20,
+                    Container(
+                      width: double.maxFinite,
+                      height: 60,
+                      color: white,
+                      padding: EdgeInsets.symmetric(horizontal: 6),
+                      child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            IconButton(
+                              onPressed: () {
+                                Navigator.pop(context);
+                              },
+                              icon: Icon(
+                                Icons.arrow_back,
+                                size: 30,
+                              ),
+                              color: primaryColor,
+                            ),
+                            BigText(text: "Profil Saya"),
+                            Icon(
+                              Icons.close,
+                              size: 30,
+                              color: Colors.transparent,
+                            ),
+                          ]),
+                    ),
+                    Container(
+                      color: white,
+                      padding: EdgeInsets.only(
+                          left: 20, right: 16, top: 12, bottom: 20),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Row(
+                            children: [
+                              CircleAvatar(
+                                  radius: 34,
+                                  child: CircleAvatar(
+                                    backgroundImage: NetworkImage('$img'),
+                                    radius: 32,
+                                  )),
+                              SizedBox(
+                                width: 20,
+                              ),
+                              SizedBox(
+                                width: MediaQuery.of(context).size.width / 1.9,
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    BigText(
+                                      text: '$name',
+                                      color: black,
+                                      size: 16,
+                                    ),
+                                    SizedBox(
+                                      height: 3,
+                                    ),
+                                    BigText(
+                                      text: '$phone',
+                                      color: black,
+                                      size: 13,
+                                      weight: FontWeight.w400,
+                                    ),
+                                    SizedBox(
+                                      height: 1,
+                                    ),
+                                    BigText(
+                                      text: '$email',
+                                      color: black,
+                                      size: 13,
+                                      weight: FontWeight.w400,
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                          IconButton(
+                              onPressed: () {},
+                              icon: Image.asset(
+                                "assets/images/cib_edit.png",
+                                color: primaryColor,
+                              ),
+                              iconSize: 30),
+                        ],
+                      ),
                     ),
                     SizedBox(
-                      width: MediaQuery.of(context).size.width / 1.9,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          BigText(
-                            text: 'Yoga Andrian',
-                            color: black,
-                            size: 16,
+                      height: 16,
+                    ),
+                    Container(
+                      padding:
+                          EdgeInsets.symmetric(vertical: 20, horizontal: 20),
+                      color: white,
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                new MaterialPageRoute(
+                                    builder: (context) => MyOrderPage()),
+                              );
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                BigText(
+                                  text: "$orders",
+                                  size: 32,
+                                  weight: FontWeight.w500,
+                                  color: primaryColor,
+                                ),
+                                SizedBox(
+                                  height: 4,
+                                ),
+                                BigText(
+                                  text: "Pesanan",
+                                  size: 14,
+                                  color: black,
+                                  weight: FontWeight.w500,
+                                ),
+                              ],
+                            ),
                           ),
-                          SizedBox(
-                            height: 3,
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                new MaterialPageRoute(
+                                    builder: (context) => CartPage()),
+                              );
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                BigText(
+                                  text: "$carts",
+                                  size: 32,
+                                  weight: FontWeight.w500,
+                                  color: primaryColor,
+                                ),
+                                SizedBox(
+                                  height: 4,
+                                ),
+                                BigText(
+                                  text: "Keranjang",
+                                  size: 14,
+                                  color: black,
+                                  weight: FontWeight.w500,
+                                ),
+                              ],
+                            ),
                           ),
-                          BigText(
-                            text: '081540988168',
-                            color: black,
-                            size: 13,
-                            weight: FontWeight.w400,
-                          ),
-                          SizedBox(
-                            height: 1,
-                          ),
-                          BigText(
-                            text: 'yogaandrianp21@gmail.com',
-                            color: black,
-                            size: 13,
-                            weight: FontWeight.w400,
+                          InkWell(
+                            onTap: () {
+                              Navigator.push(
+                                context,
+                                new MaterialPageRoute(
+                                    builder: (context) => WishlistPage()),
+                              );
+                            },
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                BigText(
+                                  text: "$wishlists",
+                                  size: 32,
+                                  weight: FontWeight.w500,
+                                  color: primaryColor,
+                                ),
+                                SizedBox(
+                                  height: 4,
+                                ),
+                                BigText(
+                                  text: "Wishlist",
+                                  size: 14,
+                                  color: black,
+                                  weight: FontWeight.w500,
+                                ),
+                              ],
+                            ),
                           ),
                         ],
                       ),
                     ),
+                    SizedBox(height: 16),
+                    InkWell(
+                        onTap: () {},
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
+                          color: white,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.vpn_key_outlined,
+                                    size: 22,
+                                    color: primaryColor,
+                                  ),
+                                  SizedBox(width: 16),
+                                  BigText(
+                                    text: 'Ubah Password',
+                                    size: 15,
+                                    weight: FontWeight.w500,
+                                  ),
+                                ],
+                              ),
+                              Icon(
+                                Icons.navigate_next_rounded,
+                                size: 30,
+                                color: primaryColor,
+                              ),
+                            ],
+                          ),
+                        )),
+                    SizedBox(height: 16),
+                    InkWell(
+                        onTap: () {},
+                        child: Container(
+                          padding: EdgeInsets.symmetric(
+                              horizontal: 20, vertical: 16),
+                          color: white,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: <Widget>[
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.logout,
+                                    size: 24,
+                                    color: primaryColor,
+                                  ),
+                                  SizedBox(width: 16),
+                                  BigText(
+                                    text: 'Logout',
+                                    size: 15,
+                                    weight: FontWeight.w500,
+                                  ),
+                                ],
+                              ),
+                              Icon(
+                                Icons.navigate_next_rounded,
+                                size: 30,
+                                color: primaryColor,
+                              ),
+                            ],
+                          ),
+                        )),
                   ],
-                ),
-                IconButton(
-                    onPressed: () {},
-                    icon: Icon(
-                      Icons.edit_rounded,
-                      color: primaryColor,
-                    ),
-                    iconSize: 30),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 16,
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 20, horizontal: 20),
-            color: white,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: <Widget>[
-                InkWell(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (context) => MyOrderPage()),
-                    );
-                  },
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      BigText(
-                        text: "10",
-                        size: 32,
-                        weight: FontWeight.w500,
-                        color: primaryColor,
-                      ),
-                      SizedBox(
-                        height: 4,
-                      ),
-                      BigText(
-                        text: "Pesanan",
-                        size: 14,
-                        color: black,
-                        weight: FontWeight.w500,
-                      ),
-                    ],
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      new MaterialPageRoute(builder: (context) => CartPage()),
-                    );
-                  },
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      BigText(
-                        text: "2",
-                        size: 32,
-                        weight: FontWeight.w500,
-                        color: primaryColor,
-                      ),
-                      SizedBox(
-                        height: 4,
-                      ),
-                      BigText(
-                        text: "Keranjang",
-                        size: 14,
-                        color: black,
-                        weight: FontWeight.w500,
-                      ),
-                    ],
-                  ),
-                ),
-                InkWell(
-                  onTap: () {
-                    Navigator.pushReplacement(
-                      context,
-                      new MaterialPageRoute(
-                          builder: (context) => WishlistPage()),
-                    );
-                  },
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      BigText(
-                        text: "3",
-                        size: 32,
-                        weight: FontWeight.w500,
-                        color: primaryColor,
-                      ),
-                      SizedBox(
-                        height: 4,
-                      ),
-                      BigText(
-                        text: "Wishlist",
-                        size: 14,
-                        color: black,
-                        weight: FontWeight.w500,
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(height: 16),
-          InkWell(
-              onTap: () {},
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                color: white,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.vpn_key_sharp,
-                          size: 24,
-                          color: grey40,
-                        ),
-                        SizedBox(width: 16),
-                        BigText(
-                          text: 'Ubah Password',
-                          size: 15,
-                          weight: FontWeight.w500,
-                        ),
-                      ],
-                    ),
-                    Icon(
-                      Icons.navigate_next_rounded,
-                      size: 30,
-                      color: primaryColor,
-                    ),
-                  ],
-                ),
-              )),
-          SizedBox(height: 16),
-          InkWell(
-              onTap: () {},
-              child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-                color: white,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Row(
-                      children: [
-                        Icon(
-                          Icons.logout_rounded,
-                          size: 24,
-                          color: grey40,
-                        ),
-                        SizedBox(width: 16),
-                        BigText(
-                          text: 'Logout',
-                          size: 15,
-                          weight: FontWeight.w500,
-                        ),
-                      ],
-                    ),
-                    Icon(
-                      Icons.navigate_next_rounded,
-                      size: 30,
-                      color: primaryColor,
-                    ),
-                  ],
-                ),
-              )),
-        ],
-      )),
-      bottomNavigationBar: BottomNavigationBar(
-        onTap: onTap,
-        currentIndex: currentIndex,
-        type: BottomNavigationBarType.fixed,
-        backgroundColor: white,
-        selectedItemColor: primaryColor,
-        unselectedItemColor: Colors.black.withOpacity(0.4),
-        selectedFontSize: 0,
-        unselectedFontSize: 0,
-        showSelectedLabels: false,
-        showUnselectedLabels: false,
-        elevation: 15,
-        items: [
-          BottomNavigationBarItem(
-              label: "Home",
-              icon: Icon(
-                Icons.home_rounded,
-                size: 30,
-              )),
-          BottomNavigationBarItem(
-              label: "Wishlist",
-              icon: Icon(
-                Icons.favorite_rounded,
-                size: 30,
-              )),
-          // BottomNavigationBarItem(label: "Search", icon: Icon(Icons.search)),
-          BottomNavigationBarItem(
-              label: "Order",
-              icon: Icon(
-                Icons.receipt_long_rounded,
-                size: 30,
-              )),
-          BottomNavigationBarItem(
-              label: "Me",
-              icon: Icon(
-                Icons.person,
-                size: 30,
-              )),
-        ],
-      ),
+                )),
     );
   }
 }

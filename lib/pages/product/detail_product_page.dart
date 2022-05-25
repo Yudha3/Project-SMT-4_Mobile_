@@ -1,5 +1,7 @@
 // import 'dart:ffi';
 
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:main/API/api_services.dart';
@@ -10,22 +12,27 @@ import 'package:main/utils/colors.dart';
 import 'package:main/widgets/big_text.dart';
 import 'package:main/widgets/product_text.dart';
 import 'package:main/widgets/small_text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class DetailProductPage extends StatefulWidget {
-  int id, price, stock;
-  String name, description, image;
+  int id;
+  // int price, stock, sold, weight;
+  // String name, description, image, materials;
   // bool isFavorite;
-  DetailProductPage(
-      {Key? key,
-      required this.id,
-      required this.price,
-      required this.stock,
-      required this.name,
-      required this.description,
-      // required this.isFavorite,
-      this.image =
-          "https://thumbs.dreamstime.com/b/flat-isolated-vector-eps-illustration-icon-minimal-design-long-shadow-error-file-not-found-web-118526724.jpg"})
-      : super(key: key);
+  DetailProductPage({
+    Key? key,
+    required this.id,
+    // required this.name,
+    // required this.description,
+    // required this.materials,
+    // required this.price,
+    // required this.stock,
+    // required this.weight,
+    // required this.sold,
+    // required this.isFavorite,
+    // this.image =
+    //     "https://thumbs.dreamstime.com/b/flat-isolated-vector-eps-illustration-icon-minimal-design-long-shadow-error-file-not-found-web-118526724.jpg"
+  }) : super(key: key);
 
   @override
   State<DetailProductPage> createState() => _DetailProductPageState();
@@ -34,29 +41,42 @@ class DetailProductPage extends StatefulWidget {
 class _DetailProductPageState extends State<DetailProductPage> {
   // double _height = MediaQuery.of().size.height;
   static int qty = 1;
+  static int id = 0;
   List<Product> data = [];
+  List<ProductImage> imageList = [];
+  List images = [];
   // String image = DetailProduct.
+  var title = "...";
+  var description = "......";
+  var materials = "...";
+  var price = 0;
+  var stock = 0;
+  var weight = 0;
+  var sold = 0;
+  var subtotal = 0;
+  var image =
+      "https://i.pinimg.com/originals/c9/22/68/c92268d92cf2dbf96e3195683d9e14fb.png";
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    getDataProduct(widget.id);
-    setState(() {});
-  }
-
-  void getDataProduct(int id) async {
-    final response = await ApiService().getDetailProduct(id);
-    data.addAll(response);
-    setState(() {});
+    // getDataProduct(widget.id);
+    setState(() {
+      id = widget.id;
+    });
+    _getDetailProduk();
+    // getProductImage();
   }
 
   void _decrement() {
     setState(() {
       if (qty == 1) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: const Duration(seconds: 3),
-          content: Text("Minimum pembelian adalah 1 !"),
+          duration: const Duration(seconds: 1),
+          content: Text(
+            "Minimum pembelian adalah 1 !",
+          ),
           backgroundColor: Colors.red,
         ));
       } else {
@@ -67,9 +87,9 @@ class _DetailProductPageState extends State<DetailProductPage> {
 
   void _increment() {
     setState(() {
-      if (qty == widget.stock) {
+      if (qty == stock) {
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-          duration: const Duration(seconds: 3),
+          duration: const Duration(seconds: 1),
           content: Text("Batas maximum pembelian terpenuhi!"),
           backgroundColor: Colors.red,
         ));
@@ -85,6 +105,80 @@ class _DetailProductPageState extends State<DetailProductPage> {
       content: Text("Berhasil menambahkan $qty ke keranjang"),
       backgroundColor: Colors.red,
     ));
+  }
+
+  void _getDetailProduk() async {
+    var res = await ApiService().getDataProduct(widget.id);
+    var body = json.decode(res.body);
+    setState(() {
+      title = body['title'];
+      price = body['price'];
+      stock = body['stock'];
+      description = body['description'];
+      materials = body['materials'];
+      weight = body['weight'];
+      image = body['image'];
+      sold = body['sold'];
+    });
+  }
+
+  _getImages() async {
+    var res = await ApiService().getImages(widget.id);
+    var body = json.decode(res.body);
+    // images.addAll(body);
+    setState(() {
+      images = jsonDecode(res.body);
+    });
+  }
+
+  void getProductImage() async {
+    var res = await ApiService().getProductImage(widget.id);
+    setState(() {
+      imageList.addAll(res);
+      // images.addAll(res);
+    });
+  }
+
+  void _addToCart() async {
+    SharedPreferences preferences = await SharedPreferences.getInstance();
+    var id_user = preferences.getInt('id_user');
+    var data = {
+      "id_user": id_user,
+      "id_product": id,
+      "qty": qty,
+      "subtotal": price * qty,
+    };
+    var res = await ApiService().addToCart(data);
+    var body = json.decode(res.body);
+    var message = body['message'];
+
+    if (message == "SUCCESS") {
+      _showMsg("Berhasil menambahkan ke Keranjang!");
+    } else {
+      _showMsgError(message);
+    }
+
+    setState(() {
+      qty = 1;
+    });
+  }
+
+  _showMsgError(msg) {
+    final snackBar = SnackBar(
+      content: Text(msg),
+      duration: const Duration(seconds: 1),
+      backgroundColor: Colors.red,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
+  }
+
+  _showMsg(msg) {
+    final snackBar = SnackBar(
+      content: Text(msg),
+      duration: const Duration(seconds: 1),
+      backgroundColor: Color.fromARGB(255, 11, 122, 15),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 
   @override
@@ -118,7 +212,7 @@ class _DetailProductPageState extends State<DetailProductPage> {
                         SizedBox(
                             width: MediaQuery.of(context).size.width / 1.4,
                             child: SmallText(
-                              text: widget.name,
+                              text: title,
                               size: 18,
                               weight: FontWeight.w500,
                               align: TextAlign.center,
@@ -147,9 +241,30 @@ class _DetailProductPageState extends State<DetailProductPage> {
                   height: 350,
                   decoration: BoxDecoration(
                       image: DecorationImage(
-                          image: NetworkImage(widget.image),
-                          fit: BoxFit.cover)),
+                          image: NetworkImage(image), fit: BoxFit.cover)),
                 ),
+                // image produk
+                // Container(
+                //     width: double.maxFinite,
+                //     height: MediaQuery.of(context).size.height / 2.5,
+                //     child: PageView.builder(
+                //         itemCount: images.length,
+                //         pageSnapping: true,
+                //         itemBuilder: (context, index) {
+                //           return Container(
+                //               margin: EdgeInsets.all(10),
+                //               child: Image.network(
+                //                 images[index],
+                //                 fit: BoxFit.cover,
+                //               ));
+                //         })
+                //     // width: double.maxFinite,
+                //     // // height: _height / 2.4,
+                //     // height: 350,
+                //     // decoration: BoxDecoration(
+                //     //     image: DecorationImage(
+                //     //         image: NetworkImage(image), fit: BoxFit.cover)),
+                //     ),
                 // product name and price
                 Container(
                   color: white,
@@ -164,15 +279,16 @@ class _DetailProductPageState extends State<DetailProductPage> {
                           SizedBox(
                             width: 240,
                             child: ProductText(
-                              text: widget.name,
+                              text: '$title',
                               size: 16,
+                              weight: FontWeight.w500,
                             ),
                           ),
                           SizedBox(
                             height: 10,
                           ),
                           ProductText(
-                            text: "Rp " + widget.price.toString(),
+                            text: CurrencyFormat.convertToIdr(price),
                             size: 18,
                             weight: FontWeight.w500,
                             color: primaryColor,
@@ -210,7 +326,7 @@ class _DetailProductPageState extends State<DetailProductPage> {
                             weight: FontWeight.w500,
                           ),
                           SmallText(
-                            text: "Kayu",
+                            text: materials,
                             size: 14,
                             weight: FontWeight.w500,
                           ),
@@ -228,7 +344,7 @@ class _DetailProductPageState extends State<DetailProductPage> {
                             weight: FontWeight.w500,
                           ),
                           SmallText(
-                            text: "12",
+                            text: stock.toString(),
                             size: 14,
                             weight: FontWeight.w500,
                           ),
@@ -246,7 +362,7 @@ class _DetailProductPageState extends State<DetailProductPage> {
                             weight: FontWeight.w500,
                           ),
                           SmallText(
-                            text: "800" + " gr",
+                            text: weight.toString() + " gr",
                             size: 14,
                             weight: FontWeight.w500,
                           ),
@@ -270,13 +386,14 @@ class _DetailProductPageState extends State<DetailProductPage> {
                           SmallText(
                             text: "Deskripsi Produk",
                             size: 15,
-                            weight: FontWeight.w500,
+                            weight: FontWeight.w600,
+                            color: black,
                           ),
                           SizedBox(
                             height: 10,
                           ),
                           SmallText(
-                            text: widget.description,
+                            text: description,
                             // "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptas ex delectus excepturi! Quidem laudantium sapiente, sit id illum earum itaque nobis! Accusantium corporis in possimus eligendi. Exercitationem minus facilis saepe obcaecati numquam nam recusandae labore blanditiis laudantium at, neque adipisci earum eum molestiae, sapiente accusantium est aspernatur rerum ratione! Autem voluptate mollitia accusamus porro dolores quo, ex, aliquam veritatis nemo aliquid odit vitae molestiae tempora ad ullam iste esse ratione eius totam officiis! Laudantium dignissimos suscipit, quisquam cumque voluptatem cum numquam ducimus magni aliquam excepturi inventore ipsum, modi quis ratione laboriosam nulla voluptates optio exercitationem tempora accusamus iure doloremque. Nobis culpa quidem unde ducimus eaque cum illo quo saepe placeat voluptatum qui cupiditate ad laborum velit nemo, doloribus iste voluptas voluptatem numquam. Explicabo harum porro voluptatibus tenetur assumenda eligendi suscipit labore et! Suscipit assumenda, maxime ullam quibusdam eligendi unde, facere laboriosam impedit iste cumque minima fugit a nemo blanditiis in sit reiciendis. Modi, soluta consequatur in et eum pariatur suscipit asperiores. Voluptate consequatur doloremque suscipit qui quia aut, quisquam dolores unde esse totam alias similique labore sint fugiat eius vero sit ut corrupti porro earum aliquid pariatur magnam! Repudiandae, ipsa possimus! Veritatis asperiores molestiae quasi et ratione vel natus soluta?",
                             color: Color(0xFF404040),
                             wrap: true,
@@ -358,7 +475,7 @@ class _DetailProductPageState extends State<DetailProductPage> {
                           borderRadius: BorderRadius.circular(16),
                         )),
                     onPressed: () {
-                      addToCart();
+                      _addToCart();
                     },
                     child: BigText(
                       text: "Add to Cart",

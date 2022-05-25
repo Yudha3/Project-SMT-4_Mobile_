@@ -7,6 +7,7 @@ Color bgWhite = Color(0xFFEFEFEF);
 Color accentColor = Color.fromARGB(255, 16, 46, 131);
 Color grey81 = Color(0xFF818181);
 Color grey40 = Color(0xFF404040);
+Color grey30 = Color(0xFF303030);
 
 Color iconColor1 = Color.fromARGB(255, 236, 180, 39);
 Color iconColor2 = Color.fromARGB(255, 220, 19, 19);

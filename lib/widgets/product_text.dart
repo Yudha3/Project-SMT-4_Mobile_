@@ -2,12 +2,14 @@ import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:main/utils/colors.dart';
+import 'package:intl/intl.dart';
 
 class ProductText extends StatelessWidget {
   final Color? color;
   final String text;
   double size, height;
   final FontWeight? weight;
+  TextAlign? align;
   bool wrap;
 
   ProductText({
@@ -18,6 +20,7 @@ class ProductText extends StatelessWidget {
     this.height = 1,
     this.weight = FontWeight.w400,
     this.wrap = false,
+    this.align = TextAlign.start,
   }) : super(key: key);
 
   @override
@@ -25,6 +28,7 @@ class ProductText extends StatelessWidget {
     return Text(
       text,
       softWrap: wrap,
+      textAlign: align,
       maxLines: 2,
       overflow: TextOverflow.ellipsis,
       style: GoogleFonts.inter(
@@ -34,5 +38,16 @@ class ProductText extends StatelessWidget {
         height: height,
       ),
     );
+  }
+}
+
+class CurrencyFormat {
+  static String convertToIdr(dynamic number) {
+    NumberFormat currencyFormatter = NumberFormat.currency(
+      locale: 'id',
+      symbol: 'Rp ',
+      decimalDigits: 0,
+    );
+    return currencyFormatter.format(number);
   }
 }

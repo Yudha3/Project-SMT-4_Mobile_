@@ -1,5 +1,7 @@
 // import 'package:flutter/material.dart';
 
+import 'dart:convert';
+
 class Product {
   // String title, description, materials, image;
   // int id, price, stock, sold, weight;
@@ -48,6 +50,49 @@ class Product {
         "image": image
       };
 }
+
+// To parse this JSON data, do
+//
+//     final productImage = productImageFromJson(jsonString);
+
+List<ProductImage> productImageFromJson(String str) => List<ProductImage>.from(
+    json.decode(str).map((x) => ProductImage.fromJson(x)));
+
+String productImageToJson(List<ProductImage> data) =>
+    json.encode(List<dynamic>.from(data.map((x) => x.toJson())));
+
+class ProductImage {
+  ProductImage({
+    required this.id,
+    required this.idProduct,
+    required this.image,
+    this.createdAt,
+    this.updatedAt,
+  });
+
+  int id;
+  int idProduct;
+  String image;
+  dynamic createdAt;
+  dynamic updatedAt;
+
+  factory ProductImage.fromJson(Map<String, dynamic> json) => ProductImage(
+        id: json["id"],
+        idProduct: json["id_product"],
+        image: json["image"],
+        createdAt: json["created_at"],
+        updatedAt: json["updated_at"],
+      );
+
+  Map<String, dynamic> toJson() => {
+        "id": id,
+        "id_product": idProduct,
+        "image": image,
+        "created_at": createdAt,
+        "updated_at": updatedAt,
+      };
+}
+
 
 // class Product {
 //   final String img, name, description;

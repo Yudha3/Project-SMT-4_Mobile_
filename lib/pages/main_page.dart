@@ -10,6 +10,7 @@ import 'package:main/utils/colors.dart';
 import 'package:main/widgets/big_text.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:main/widgets/small_text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({Key? key}) : super(key: key);
@@ -20,6 +21,8 @@ class MainPage extends StatefulWidget {
 
 class _MainPageState extends State<MainPage> {
   PageController pageController = PageController(viewportFraction: 0.8);
+  int currentIndex = 0;
+  bool isAuth = false;
 
   List<Widget> pages = [
     HomePage(),
@@ -28,11 +31,22 @@ class _MainPageState extends State<MainPage> {
     ProfilePage()
   ];
 
-  int currentIndex = 0;
   void onTap(int index) {
     setState(() {
       currentIndex = index;
     });
+  }
+
+  void _checkIfLoggedIn() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var token = localStorage.getString('token');
+    if (token != null) {
+      if (mounted) {
+        setState(() {
+          isAuth = true;
+        });
+      }
+    }
   }
 
   @override

@@ -11,7 +11,7 @@ TextStyle textOnly = GoogleFonts.inter(
 TextStyle textHeading = GoogleFonts.inter(
   fontWeight: FontWeight.w700,
   color: white,
-  fontSize: 32,
+  fontSize: 28,
 );
 
 TextStyle textHeadingDark = GoogleFonts.inter(
@@ -45,7 +45,7 @@ TextStyle buttonText20 = GoogleFonts.inter(
 );
 
 TextStyle textButtonRegister = GoogleFonts.inter(
-  fontWeight: FontWeight.w600,
+  fontWeight: FontWeight.w500,
   color: primaryColor,
   fontSize: 15,
 );
@@ -53,7 +53,7 @@ TextStyle textButtonRegister = GoogleFonts.inter(
 TextStyle textRegister = GoogleFonts.inter(
   fontWeight: FontWeight.w500,
   color: grey40,
-  fontSize: 15,
+  fontSize: 14,
 );
 
 TextStyle txtForm = GoogleFonts.inter(

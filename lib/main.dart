@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:main/pages/product/catalog_page.dart';
 import 'package:main/pages/main_page.dart';
-import 'package:main/pages/product/detail_product_page.dart';
-import 'package:main/pages/register_page.dart';
+import 'package:main/pages/splashscreen.dart';
 import 'package:main/pages/welcome_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
   runApp(MyApp());
@@ -31,7 +30,7 @@ class MyApp extends StatelessWidget {
         //   primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: RegisterPage(),
+      home: SplashScreen(),
     );
   }
 }
@@ -117,6 +116,49 @@ class _MyHomePageState extends State<MyHomePage> {
         tooltip: 'Increment',
         child: const Icon(Icons.add),
       ), // This trailing comma makes auto-formatting nicer for build methods.
+    );
+  }
+}
+
+class CheckAuth extends StatefulWidget {
+  const CheckAuth({Key? key}) : super(key: key);
+
+  @override
+  State<CheckAuth> createState() => _CheckAuthState();
+}
+
+class _CheckAuthState extends State<CheckAuth> {
+  bool isAuth = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _checkIfLoggedIn();
+  }
+
+  void _checkIfLoggedIn() async {
+    SharedPreferences localStorage = await SharedPreferences.getInstance();
+    var token = localStorage.getString('token');
+    if (token != null) {
+      if (mounted) {
+        setState(() {
+          isAuth = true;
+        });
+      }
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Widget child;
+    if (!isAuth) {
+      child = WelcomePage();
+    } else {
+      child = MainPage();
+    }
+
+    return Scaffold(
+      body: child,
     );
   }
 }

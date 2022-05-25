@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:main/pages/login_page.dart';
 import 'package:main/utils/colors.dart';
 import 'package:main/utils/textstyle.dart';
+import 'package:main/widgets/big_text.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({Key? key}) : super(key: key);
@@ -23,17 +24,17 @@ class WelcomePage extends StatelessWidget {
         child: Column(
           children: [
             SizedBox(
-              height: 80,
+              height: 84,
             ),
             Column(
               children: [
                 Text("Discover more", style: textHeading),
                 SizedBox(
-                  height: 20,
+                  height: 2,
                 ),
                 Image.asset(
                   "assets/images/drawkit2.png",
-                  width: 340,
+                  width: 320,
                 ),
                 Text(
                   "Temukan berbagai produk menarik dengan kemudahan transaksi",
@@ -50,15 +51,35 @@ class WelcomePage extends StatelessWidget {
                 padding: EdgeInsets.all(20),
                 child: OutlinedButton(
                   style: OutlinedButton.styleFrom(
-                    padding: EdgeInsets.symmetric(vertical: 22, horizontal: 36),
+                    padding: EdgeInsets.only(
+                        top: 22, bottom: 22, left: 24, right: 10),
                     minimumSize: Size(200, 60),
                     textStyle: buttonText18,
                     primary: white,
                     shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(14)),
+                        borderRadius: BorderRadius.circular(15)),
                     side: BorderSide(width: 1, color: white),
                   ),
-                  child: Text('Get started'),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      BigText(
+                        text: 'Get started',
+                        color: white,
+                        weight: FontWeight.w600,
+                      ),
+                      SizedBox(
+                        width: 16,
+                      ),
+                      Icon(
+                        Icons.navigate_next_rounded,
+                        color: white,
+                        size: 28,
+                      ),
+                    ],
+                  ),
                   onPressed: () {
                     Navigator.push(
                       context,

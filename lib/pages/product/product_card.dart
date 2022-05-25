@@ -23,14 +23,15 @@ class ProductCard extends StatelessWidget {
               context,
               MaterialPageRoute(
                   builder: (context) => DetailProductPage(
-                      id: id,
-                      // isFavorite: product.isFavorite,
-                      price: product.price,
-                      stock: product.stock,
-                      name: product.title,
-                      image: product.image,
-                      description:
-                          id.toString() + " - " + product.description)));
+                        id: id,
+                        // isFavorite: product.isFavorite,
+                        // price: product.price,
+                        // stock: product.stock,
+                        // name: product.title,
+                        // image: product.image,
+                        // description:
+                        //     id.toString() + " - " + product.description
+                      )));
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -94,7 +95,8 @@ class ProductCard extends StatelessWidget {
             // height: 35,
             child: ProductText(
               text: product.title,
-              size: 13,
+              size: 13.5,
+              weight: FontWeight.w500,
             ),
           ),
           SizedBox(
@@ -104,12 +106,15 @@ class ProductCard extends StatelessWidget {
             // width: 150,
             // height: 35,
             child: ProductText(
-              text: "Rp " + product.price.toString(),
+              text: CurrencyFormat.convertToIdr(product.price),
               size: 15,
               color: primaryColor,
               weight: FontWeight.w500,
             ),
           ),
+          SizedBox(
+            height: 6,
+          )
         ],
       ),
     );

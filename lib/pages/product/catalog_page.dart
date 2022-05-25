@@ -20,6 +20,7 @@ class CatalogPage extends StatefulWidget {
 }
 
 class _CatalogPageState extends State<CatalogPage> {
+  bool _isLoading = true;
   List<Product> data = [];
   // List data = [];
   // late Product product;
@@ -132,11 +133,22 @@ class _CatalogPageState extends State<CatalogPage> {
     fetchData();
   }
 
+  fetchData() async {
+    final response = await ApiService().getAllProducts();
+    setState(() {
+      _isLoading = true;
+      data.addAll(response);
+      _isLoading = false;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgWhite,
-      body: SafeArea(child: CatalogBody()),
+      body: SafeArea(
+        child: CatalogBody(),
+      ),
       // body: SafeArea(
       //   child: Stack(
       //     children: [
@@ -185,12 +197,6 @@ class _CatalogPageState extends State<CatalogPage> {
       //   ),
       // )
     );
-  }
-
-  fetchData() async {
-    final response = await ApiService().getAllProducts();
-    data.addAll(response);
-    setState(() {});
   }
 
   // Widget catalogList() {
@@ -277,24 +283,32 @@ class _CatalogPageState extends State<CatalogPage> {
           ]),
         ),
         Expanded(
-          child: Padding(
+          child: Container(
             padding: EdgeInsets.symmetric(
               horizontal: 12,
               vertical: 10,
             ),
-            child: GridView(
-              gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                  crossAxisCount: 2,
-                  mainAxisSpacing: 12,
-                  crossAxisSpacing: 12,
-                  childAspectRatio: 0.76),
-              children: data
-                  .map<Widget>((product) => ProductCard(
-                        product: product,
-                        id: product.id,
-                      ))
-                  .toList(),
-            ),
+            child: _isLoading
+                ? Center(
+                    child: CircularProgressIndicator(
+                      backgroundColor: gray,
+                      color: primaryColor,
+                      strokeWidth: 6,
+                    ),
+                  )
+                : GridView(
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: 0.76),
+                    children: data
+                        .map<Widget>((product) => ProductCard(
+                              product: product,
+                              id: product.id,
+                            ))
+                        .toList(),
+                  ),
           ),
         ),
       ],

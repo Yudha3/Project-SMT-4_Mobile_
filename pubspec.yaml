@@ -30,14 +30,19 @@ dependencies:
   flutter:
     sdk: flutter
   # get: ^4.6.3
-  http: ^0.13.4
+  # http: ^0.13.4
+  # flutter_bloc: ^8.0.1
+  # shared_preferences: ^2.0.15
+  # equatable: ^2.0.3
+  shared_preferences: ^0.5.12+4
+  http: ^0.12.2
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
-  google_fonts: ^2.3.1
-  font_awesome_flutter: ^10.1.0
+  google_fonts: ^1.1.2
   fluttertoast: ^8.0.9
+  # font_awesome_flutter: ^10.1.0
   intl: ^0.17.0
 
 dev_dependencies:
@@ -69,10 +74,12 @@ flutter:
     - assets/images/cib_shopping_cart.png
     - assets/images/cib_pesanan.png
     - assets/images/cib_favorite.png
+    - assets/images/cib_edit.png
     - assets/images/drawkit1.png
     - assets/images/drawkit2.png
     - assets/images/drawkit3.png
     - assets/images/craft0.png
+    - assets/images/empty_cart.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
