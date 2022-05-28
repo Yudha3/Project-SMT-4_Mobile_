@@ -19,6 +19,7 @@ class User {
     required this.carts,
     required this.orders,
     required this.wishlists,
+    required this.subtotal,
   });
 
   int id;
@@ -30,6 +31,7 @@ class User {
   int carts;
   int orders;
   int wishlists;
+  int subtotal;
 
   factory User.fromJson(Map<String, dynamic> json) => User(
         id: json["id"],
@@ -41,6 +43,7 @@ class User {
         carts: json["carts"],
         orders: json["orders"],
         wishlists: json["wishlists"],
+        subtotal: json["subtotal"],
       );
 
   Map<String, dynamic> toJson() => {
@@ -53,5 +56,6 @@ class User {
         "carts": carts,
         "orders": orders,
         "wishlists": wishlists,
+        "subtotal": subtotal,
       };
 }

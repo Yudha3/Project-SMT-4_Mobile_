@@ -29,6 +29,8 @@ class ApiService {
     }
   }
 
+  //PRODUK
+  // ambil data semua produk
   Future<List<Product>> getAllProducts() async {
     try {
       final response = await http.get(Uri.parse("$baseURL/products"));
@@ -69,17 +71,18 @@ class ApiService {
     }
   }
 
-  _getProductImage(var id) async {
-    return await http.get("$baseURL/product/images/$id",
-        headers: _setHeaders());
-  }
+  // _getProductImage(var id) async {
+  //   return await http.get("$baseURL/product/images/$id",
+  //       headers: _setHeaders());
+  // }
 
+  // KERANJANG
   // ambil data keranjang user
   Future<List<Cart>> getUserCarts() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var id = prefs.getInt('id_user');
     try {
-      final response = await http.get(Uri.parse("$baseURL/carts/$id"),
+      final response = await http.get(Uri.parse("$baseURL/carts/user/$id"),
           headers: _setHeaders());
       if (response.statusCode == 200) {
         List<dynamic> json = jsonDecode(response.body);
@@ -105,16 +108,18 @@ class ApiService {
         body: jsonEncode(data), headers: _setHeaders());
   }
 
+  // hapus keranjang
   deleteCart(id) async {
     return await http.delete(baseURL + "/carts/$id", headers: _setHeaders());
   }
 
+  // PESANAN
   // ambil data pesanan user
   Future<List<Order>> getUserOrder() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var id = prefs.getInt('id_user');
     try {
-      final response = await http.get(Uri.parse("$baseURL/orders/$id"));
+      final response = await http.get(Uri.parse("$baseURL/orders/user/$id"));
       if (response.statusCode == 200) {
         List<dynamic> json = jsonDecode(response.body);
         return List<Order>.from(json.map((e) => Order.fromJson(e)));
@@ -124,6 +129,38 @@ class ApiService {
     } catch (e) {
       return [];
     }
+  }
+
+  // ambil data item order
+  Future<List<OrderItem>> getOrderItem(id) async {
+    try {
+      final response = await http.get(Uri.parse("$baseURL/order/$id/detail"));
+      if (response.statusCode == 200) {
+        List<dynamic> json = jsonDecode(response.body);
+        return List<OrderItem>.from(json.map((e) => OrderItem.fromJson(e)));
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
+    }
+  }
+
+  // ambil data transaksi
+  getDataOrder(var id) async {
+    return await http.get("$baseURL/order/$id", headers: _setHeaders());
+  }
+
+  // cek ongkir
+  cekOngkir(data) async {
+    return await http.post(
+      "$baseURL/order/ongkir",
+      body: data,
+    );
+  }
+
+  createOrder(data) async {
+    return await http.post("$baseURL/order", body: data);
   }
 
   // auth login, register, logout
@@ -136,7 +173,12 @@ class ApiService {
   getUserData() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     var id = prefs.getInt('id_user');
-    return await http.get("$baseURL/user/$id", headers: _setHeaders());
+    var request = await http.get("$baseURL/user/$id", headers: _setHeaders());
+    var body = jsonDecode(request.body);
+    var subtotal = body['subtotal'];
+    prefs.setInt('subtotal', subtotal);
+    prefs.setInt('weight', body['weight']);
+    return request;
   }
 
   Future _getToken() async {
