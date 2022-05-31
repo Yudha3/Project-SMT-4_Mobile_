@@ -80,6 +80,7 @@ flutter:
     - assets/images/drawkit3.png
     - assets/images/craft0.png
     - assets/images/empty_cart.png
+    - assets/images/bni_logo.png
 
 
   # An image asset can refer to one or more resolution-specific "variants", see
