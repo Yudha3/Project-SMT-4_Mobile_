@@ -11,6 +11,7 @@ class ProductText extends StatelessWidget {
   final FontWeight? weight;
   TextAlign? align;
   bool wrap;
+  int line;
 
   ProductText({
     Key? key,
@@ -21,6 +22,7 @@ class ProductText extends StatelessWidget {
     this.weight = FontWeight.w400,
     this.wrap = false,
     this.align = TextAlign.start,
+    this.line = 2,
   }) : super(key: key);
 
   @override
@@ -29,7 +31,7 @@ class ProductText extends StatelessWidget {
       text,
       softWrap: wrap,
       textAlign: align,
-      maxLines: 2,
+      maxLines: line,
       overflow: TextOverflow.ellipsis,
       style: GoogleFonts.inter(
         fontSize: size,

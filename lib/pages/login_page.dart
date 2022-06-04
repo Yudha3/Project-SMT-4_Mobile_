@@ -249,6 +249,8 @@ class _LoginPageState extends State<LoginPage> {
       localStorage.setString('token', json.encode(body['token']));
       localStorage.setString('user', json.encode(body['user']));
       localStorage.setInt('id_user', id);
+      // var response = await ApiService().getUserData();
+      // localStorage.setInt('subtotal', id);
       // localStorage.
       Navigator.pushReplacement(
         context,

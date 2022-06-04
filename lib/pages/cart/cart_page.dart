@@ -7,6 +7,7 @@ import 'package:flutter/material.dart';
 import 'package:main/API/api_services.dart';
 import 'package:main/models/cart.dart';
 import 'package:main/pages/cart/cart_item.dart';
+import 'package:main/pages/orders/order_page.dart';
 import 'package:main/pages/product/catalog_page.dart';
 import 'package:main/widgets/big_text.dart';
 import 'package:main/utils/colors.dart';
@@ -26,6 +27,7 @@ class _CartPageState extends State<CartPage> {
   int id_user = 0;
   bool _isLoading = true;
   List<Cart> carts = [];
+  var subtotal = 0;
 
   @override
   void initState() {
@@ -42,6 +44,7 @@ class _CartPageState extends State<CartPage> {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       id_user = preferences.getInt('id_user');
+      subtotal = preferences.getInt('subtotal');
     });
     // print(id_user);
   }
@@ -75,10 +78,10 @@ class _CartPageState extends State<CartPage> {
     //       return Center(child: CircularProgressIndicator());
     //     },);
     final response = await ApiService().getUserCarts();
-
+    await ApiService().getUserData();
     setState(() {
-      _isLoading = false;
       carts.addAll(response);
+      _isLoading = false;
     });
     // Navigator.of(context).pop();
   }
@@ -92,6 +95,7 @@ class _CartPageState extends State<CartPage> {
           onRefresh: () async {
             await ApiService().getAllProducts();
             setState(() {
+              _isLoading = true;
               carts = [];
             });
             // await ApiService().getUserCarts();
@@ -203,10 +207,85 @@ class _CartPageState extends State<CartPage> {
                                 //     ))
                               )),
               ),
+              // Positioned(
+              //     bottom: 0,
+              //     left: 0,
+              //     right: 0,
+              //     child: Container(
+              //       color: gray,
+              //       height: 60,
+              //       width: double.maxFinite,
+              //     ))
             ],
           ),
         ),
       ),
+
+      bottomNavigationBar: Container(
+          padding: EdgeInsets.only(left: 24, top: 10, bottom: 10, right: 16),
+          color: white,
+          height: 72,
+          child: Row(
+            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              SizedBox(
+                width: MediaQuery.of(context).size.width / 2.5,
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    SmallText(
+                      text: "Subtotal :",
+                      size: 14,
+                      weight: FontWeight.w500,
+                    ),
+                    SmallText(
+                      text: CurrencyFormat.convertToIdr(subtotal),
+                      size: 16,
+                      weight: FontWeight.w600,
+                      color: primaryColor,
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                  width: MediaQuery.of(context).size.width / 2.3,
+                  child: Container(
+                    width: MediaQuery.of(context).size.width,
+                    height: 60,
+                    decoration: BoxDecoration(
+                        color: primaryLight,
+                        borderRadius: BorderRadius.circular(16),
+                        gradient: LinearGradient(
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                            colors: [primaryColor, secondaryColor])),
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                          shadowColor: Color(0xFFd9d9d9),
+                          backgroundColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(16),
+                          )),
+                      onPressed: () {
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => OrderPage(
+                                    // id_user: id_user,
+                                    )));
+                      },
+                      child: BigText(
+                        text: "Order",
+                        color: white,
+                        size: 16,
+                      ),
+                    ),
+                  ))
+            ],
+          )),
+
       // body: SafeArea(
       //     child: Stack(
       //   children: [

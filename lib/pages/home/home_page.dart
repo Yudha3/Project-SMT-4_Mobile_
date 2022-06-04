@@ -31,6 +31,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _isLoading = true;
   int? id;
+  var subtotal;
   List<Product> products = [];
   List<User> user = [];
   String img = "";
@@ -39,6 +40,7 @@ class _HomePageState extends State<HomePage> {
     SharedPreferences pref = await SharedPreferences.getInstance();
     setState(() {
       id = (pref.getInt('id_user') ?? 0);
+      // subtotal = CurrencyFormat.convertToIdr(pref.getInt('subtotal'));
     });
   }
 
@@ -84,6 +86,7 @@ class _HomePageState extends State<HomePage> {
             setState(() {
               products = [];
             });
+            getID();
             fetchDataUser();
             fetchDataProduct();
           },
@@ -127,7 +130,7 @@ class _HomePageState extends State<HomePage> {
                                   ),
                                 ),
                               ),
-                              BigText(text: id.toString() + "- Beranda"),
+                              BigText(text: "Beranda"),
                               IconButton(
                                   onPressed: () {
                                     Navigator.push(
