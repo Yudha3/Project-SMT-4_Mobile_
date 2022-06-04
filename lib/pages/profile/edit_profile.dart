@@ -3,8 +3,6 @@ import 'package:main/widgets/big_text.dart';
 import 'package:main/utils/colors.dart';
 import 'package:main/utils/textstyle.dart';
 
-enum Gender { pria, wanita }
-
 class EditProfilePage extends StatefulWidget {
   const EditProfilePage({Key? key}) : super(key: key);
 
@@ -14,13 +12,12 @@ class EditProfilePage extends StatefulWidget {
 
 class _EditProfilePageState extends State<EditProfilePage> {
   final _formKey = GlobalKey<FormState>();
-  Gender? _gender = Gender.pria;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgWhite,
       body: SafeArea(
-          child: ListView(
+          child: Column(
         children: [
           Container(
             width: double.maxFinite,
@@ -101,53 +98,6 @@ class _EditProfilePageState extends State<EditProfilePage> {
                                   borderSide: BorderSide(
                                       width: 1, color: primaryColor)),
                             ),
-                          ),
-                          SizedBox(
-                            height: 15,
-                          ),
-                          Column(
-                            children: [
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        Radio<Gender>(
-                                          value: Gender.pria,
-                                          groupValue: _gender,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _gender = value;
-                                            });
-                                          },
-                                        ),
-                                        Expanded(
-                                          child: Text('Laki-Laki'),
-                                        )
-                                      ],
-                                    ),
-                                    flex: 1,
-                                  ),
-                                  Expanded(
-                                    child: Row(
-                                      children: [
-                                        Radio<Gender>(
-                                          value: Gender.wanita,
-                                          groupValue: _gender,
-                                          onChanged: (value) {
-                                            setState(() {
-                                              _gender = value;
-                                            });
-                                          },
-                                        ),
-                                        Expanded(child: Text('Perempuan'))
-                                      ],
-                                    ),
-                                    flex: 1,
-                                  ),
-                                ],
-                              ),
-                            ],
                           ),
                           SizedBox(
                             height: 15,

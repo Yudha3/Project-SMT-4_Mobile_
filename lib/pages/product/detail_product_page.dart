@@ -99,14 +99,6 @@ class _DetailProductPageState extends State<DetailProductPage> {
     });
   }
 
-  void addToCart() {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-      duration: const Duration(seconds: 3),
-      content: Text("Berhasil menambahkan $qty ke keranjang"),
-      backgroundColor: Colors.red,
-    ));
-  }
-
   void _getDetailProduk() async {
     var res = await ApiService().getDataProduct(widget.id);
     var body = json.decode(res.body);
@@ -139,7 +131,7 @@ class _DetailProductPageState extends State<DetailProductPage> {
     });
   }
 
-  void _addToCart() async {
+  void addToCart() async {
     SharedPreferences preferences = await SharedPreferences.getInstance();
     var id_user = preferences.getInt('id_user');
     var data = {
@@ -153,6 +145,7 @@ class _DetailProductPageState extends State<DetailProductPage> {
     var message = body['message'];
 
     if (message == "SUCCESS") {
+      await ApiService().getUserData();
       _showMsg("Berhasil menambahkan ke Keranjang!");
     } else {
       _showMsgError(message);
@@ -333,7 +326,25 @@ class _DetailProductPageState extends State<DetailProductPage> {
                         ],
                       ),
                       SizedBox(
-                        height: 12,
+                        height: 10,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          SmallText(
+                            text: "Berat",
+                            size: 14,
+                            weight: FontWeight.w500,
+                          ),
+                          SmallText(
+                            text: weight.toString() + " gr",
+                            size: 14,
+                            weight: FontWeight.w500,
+                          ),
+                        ],
+                      ),
+                      SizedBox(
+                        height: 10,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -351,18 +362,18 @@ class _DetailProductPageState extends State<DetailProductPage> {
                         ],
                       ),
                       SizedBox(
-                        height: 12,
+                        height: 10,
                       ),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: [
                           SmallText(
-                            text: "Berat",
+                            text: "Terjual",
                             size: 14,
                             weight: FontWeight.w500,
                           ),
                           SmallText(
-                            text: weight.toString() + " gr",
+                            text: sold.toString(),
                             size: 14,
                             weight: FontWeight.w500,
                           ),
@@ -475,7 +486,7 @@ class _DetailProductPageState extends State<DetailProductPage> {
                           borderRadius: BorderRadius.circular(16),
                         )),
                     onPressed: () {
-                      _addToCart();
+                      addToCart();
                     },
                     child: BigText(
                       text: "Add to Cart",
