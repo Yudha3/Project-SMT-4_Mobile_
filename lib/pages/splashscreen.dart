@@ -1,10 +1,12 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+import 'package:main/pages/home/home_page.dart';
 import 'package:main/pages/login_page.dart';
 import 'package:main/pages/main_page.dart';
 import 'package:main/pages/welcome_page.dart';
 import 'package:main/utils/colors.dart';
+import 'package:main/widgets/big_text.dart';
 import 'package:main/widgets/small_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -36,7 +38,7 @@ class _SplashScreenState extends State<SplashScreen> {
     return Timer(duration, () {
       if (isAuth) {
         Navigator.of(context).pushReplacement(
-            MaterialPageRoute(builder: (context) => MainPage()));
+            MaterialPageRoute(builder: (context) => HomePage()));
       } else {
         Navigator.of(context).pushReplacement(
             MaterialPageRoute(builder: (context) => WelcomePage()));
@@ -54,29 +56,29 @@ class _SplashScreenState extends State<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: white,
-        body: Center(
-          child: Image.asset(
-            'assets/images/drawkit1.png',
-            width: 144,
-          ),
-        )
+      backgroundColor: white,
+      body: Center(
+        child: Image.asset(
+          'assets/images/logo.png',
+          width: MediaQuery.of(context).size.width / 3,
+        ),
+      ),
 
-        // Column(
-        //   mainAxisAlignment: MainAxisAlignment.center,
-        //   crossAxisAlignment: CrossAxisAlignment.center,
-        //   children: [
-        //     SizedBox(
-        //       height: 5,
-        //     ),
-        //     SmallText(
-        //       text: "BumdesApp",
-        //       size: 16,
-        //       weight: FontWeight.w500,
-        //       color: grey40,
-        //     ),
-        //   ],
-        // ),
-        );
+      // Column(
+      //   mainAxisAlignment: MainAxisAlignment.center,
+      //   crossAxisAlignment: CrossAxisAlignment.center,
+      //   children: [
+      //     SizedBox(
+      //       height: 5,
+      //     ),
+      //     SmallText(
+      //       text: "BumdesApp",
+      //       size: 16,
+      //       weight: FontWeight.w500,
+      //       color: grey40,
+      //     ),
+      //   ],
+      // ),
+    );
   }
 }

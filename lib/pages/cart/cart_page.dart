@@ -4,6 +4,7 @@ import 'dart:convert';
 
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:main/API/api_services.dart';
 import 'package:main/models/cart.dart';
 import 'package:main/pages/cart/cart_item.dart';
@@ -33,14 +34,24 @@ class _CartPageState extends State<CartPage> {
   void initState() {
     // TODO: implement initState
     super.initState();
-    setState(() {
-      getID();
-      fetchData();
-    });
+    getID();
+    fetchData();
+    setState(() {});
   }
+
+  // @override
+  // void dispose() {
+  //   // TODO: implement dispose
+  //   super.dispose();
+  //   setState(() {
+  //     carts = [];
+  //   });
+  //   fetchData();
+  // }
 
   // ambil id_user
   void getID() async {
+    ApiService().getUserData();
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
       id_user = preferences.getInt('id_user');
@@ -49,26 +60,26 @@ class _CartPageState extends State<CartPage> {
     // print(id_user);
   }
 
-  Future getData() async {
-    var res =
-        await http.get("http://192.168.1.2/coba_api/public/carts/$id_user");
-    var jsonData = jsonDecode(res.body);
-    List<Cart> carts = [];
+  // Future getData() async {
+  //   var res =
+  //       await http.get("http://192.168.1.2/coba_api/public/carts/$id_user");
+  //   var jsonData = jsonDecode(res.body);
+  //   List<Cart> carts = [];
 
-    for (var json in jsonData) {
-      Cart cart = Cart(
-          id: json['id'],
-          idUser: json['id_user'],
-          idProduct: json['id_product'],
-          title: json['title'],
-          image: json['image'],
-          price: json['price'],
-          qty: json['qty'],
-          subtotal: json['subtotal']);
-      carts.add(cart);
-    }
-    return carts;
-  }
+  //   for (var json in jsonData) {
+  //     Cart cart = Cart(
+  //         id: json['id'],
+  //         idUser: json['id_user'],
+  //         idProduct: json['id_product'],
+  //         title: json['title'],
+  //         image: json['image'],
+  //         price: json['price'],
+  //         qty: json['qty'],
+  //         subtotal: json['subtotal']);
+  //     carts.add(cart);
+  //   }
+  //   return carts;
+  // }
 
   //ambil data keranjang
   fetchData() async {
@@ -99,6 +110,7 @@ class _CartPageState extends State<CartPage> {
               carts = [];
             });
             // await ApiService().getUserCarts();
+            // getData();
             await fetchData();
           },
           child: Column(
@@ -125,7 +137,7 @@ class _CartPageState extends State<CartPage> {
                         ),
                         color: primaryColor,
                       ),
-                      BigText(text: "$id_user - Keranjang"),
+                      BigText(text: "Keranjang"),
                       Icon(
                         Icons.close,
                         size: 30,
@@ -181,7 +193,7 @@ class _CartPageState extends State<CartPage> {
                                       color: grey40,
                                       align: TextAlign.center,
                                       size: 14,
-                                      weight: FontWeight.w600,
+                                      weight: FontWeight.w500,
                                     ),
                                   ],
                                 ),
@@ -220,71 +232,146 @@ class _CartPageState extends State<CartPage> {
           ),
         ),
       ),
-
-      bottomNavigationBar: Container(
-          padding: EdgeInsets.only(left: 24, top: 10, bottom: 10, right: 16),
-          color: white,
-          height: 72,
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            crossAxisAlignment: CrossAxisAlignment.center,
-            children: [
-              SizedBox(
-                width: MediaQuery.of(context).size.width / 2.5,
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    SmallText(
-                      text: "Subtotal :",
-                      size: 14,
-                      weight: FontWeight.w500,
-                    ),
-                    SmallText(
-                      text: CurrencyFormat.convertToIdr(subtotal),
-                      size: 16,
-                      weight: FontWeight.w600,
-                      color: primaryColor,
-                    ),
-                  ],
+      bottomNavigationBar: carts.length == 0
+          ? Container(
+              margin: EdgeInsets.only(left: 14, right: 14, top: 8, bottom: 12),
+              width: MediaQuery.of(context).size.width,
+              height: 56,
+              decoration: BoxDecoration(
+                  color: primaryLight,
+                  borderRadius: BorderRadius.circular(16),
+                  gradient: LinearGradient(
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                      colors: [primaryColor, secondaryColor])),
+              child: TextButton(
+                style: TextButton.styleFrom(
+                    shadowColor: Color(0xFFd9d9d9),
+                    backgroundColor: Colors.transparent,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(16),
+                    )),
+                onPressed: () {
+                  Navigator.pushReplacement(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => CatalogPage(
+                              // id_user: id_user,
+                              )));
+                },
+                child: BigText(
+                  text: "Belanja Sekarang",
+                  color: white,
+                  size: 16,
                 ),
               ),
-              SizedBox(
-                  width: MediaQuery.of(context).size.width / 2.3,
-                  child: Container(
-                    width: MediaQuery.of(context).size.width,
-                    height: 60,
-                    decoration: BoxDecoration(
-                        color: primaryLight,
-                        borderRadius: BorderRadius.circular(16),
-                        gradient: LinearGradient(
-                            begin: Alignment.topLeft,
-                            end: Alignment.bottomRight,
-                            colors: [primaryColor, secondaryColor])),
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                          shadowColor: Color(0xFFd9d9d9),
-                          backgroundColor: Colors.transparent,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          )),
-                      onPressed: () {
-                        Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (context) => OrderPage(
-                                    // id_user: id_user,
-                                    )));
-                      },
-                      child: BigText(
-                        text: "Order",
-                        color: white,
-                        size: 16,
-                      ),
+            )
+          :
+
+          // Container(
+          //     margin: EdgeInsets.only(left: 16, bottom: 12, right: 16),
+          //     width: MediaQuery.of(context).size.width,
+          //     height: 56,
+          //     decoration: BoxDecoration(
+          //         color: primaryLight,
+          //         borderRadius: BorderRadius.circular(16),
+          //         gradient: LinearGradient(
+          //             begin: Alignment.topLeft,
+          //             end: Alignment.bottomRight,
+          //             colors: [primaryColor, secondaryColor])),
+          //     child: TextButton(
+          //       style: TextButton.styleFrom(
+          //           shadowColor: Color(0xFFd9d9d9),
+          //           backgroundColor: Colors.transparent,
+          //           shape: RoundedRectangleBorder(
+          //             borderRadius: BorderRadius.circular(16),
+          //           )),
+          //       onPressed: () {
+          //         if (subtotal == 0) {
+          //           initState();
+          //           Fluttertoast.showToast(msg: "Terjadi kesalahan!");
+          //         } else {
+          //           Navigator.push(
+          //               context,
+          //               MaterialPageRoute(
+          //                   builder: (context) => OrderPage(
+          //                       // id_user: id_user,
+          //                       )));
+          //         }
+          //       },
+          //       child: BigText(
+          //         text: "Order",
+          //         color: white,
+          //         size: 16,
+          //       ),
+          //     ),
+          //   )
+
+          Container(
+              padding:
+                  EdgeInsets.only(left: 24, top: 10, bottom: 10, right: 16),
+              color: white,
+              height: 72,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  SizedBox(
+                    width: MediaQuery.of(context).size.width / 2.5,
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SmallText(
+                          text: "Subtotal :",
+                          size: 14,
+                          weight: FontWeight.w500,
+                        ),
+                        SmallText(
+                          text: CurrencyFormat.convertToIdr(subtotal),
+                          size: 16,
+                          weight: FontWeight.w600,
+                          color: primaryColor,
+                        ),
+                      ],
                     ),
-                  ))
-            ],
-          )),
+                  ),
+                  SizedBox(
+                      width: MediaQuery.of(context).size.width / 2.3,
+                      child: Container(
+                        width: MediaQuery.of(context).size.width,
+                        height: 60,
+                        decoration: BoxDecoration(
+                            color: primaryLight,
+                            borderRadius: BorderRadius.circular(16),
+                            gradient: LinearGradient(
+                                begin: Alignment.topLeft,
+                                end: Alignment.bottomRight,
+                                colors: [primaryColor, secondaryColor])),
+                        child: TextButton(
+                          style: TextButton.styleFrom(
+                              shadowColor: Color(0xFFd9d9d9),
+                              backgroundColor: Colors.transparent,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(16),
+                              )),
+                          onPressed: () {
+                            Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                    builder: (context) => OrderPage(
+                                        // id_user: id_user,
+                                        )));
+                          },
+                          child: BigText(
+                            text: "Check Out",
+                            color: white,
+                            size: 16,
+                          ),
+                        ),
+                      ))
+                ],
+              )),
 
       // body: SafeArea(
       //     child: Stack(

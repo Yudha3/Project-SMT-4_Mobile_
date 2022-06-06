@@ -1,15 +1,23 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:main/API/api_services.dart';
 import 'package:main/models/user.dart';
 import 'package:main/pages/cart/cart_page.dart';
+import 'package:main/pages/login_page.dart';
 import 'package:main/pages/orders/my_order_page.dart';
+import 'package:main/pages/profile/change_password.dart';
+import 'package:main/pages/profile/confirm_password_page.dart';
+import 'package:main/pages/profile/edit_profile.dart';
+import 'package:main/pages/welcome_page.dart';
 import 'package:main/pages/wishlist/wishlist_page.dart';
 import 'package:main/utils/textstyle.dart';
 import 'package:main/widgets/big_text.dart';
 import 'package:main/utils/colors.dart';
 import 'package:main/widgets/product_text.dart';
+import 'package:main/widgets/small_text.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class ProfilePage extends StatefulWidget {
   const ProfilePage({Key? key}) : super(key: key);
@@ -28,7 +36,7 @@ class _ProfilePageState extends State<ProfilePage> {
   String phone = "";
   int carts = 0;
   int wishlists = 7;
-  int orders = 2;
+  int orders = 0;
 
   @override
   void initState() {
@@ -48,6 +56,7 @@ class _ProfilePageState extends State<ProfilePage> {
       email = body['email'];
       phone = body['phone'];
       carts = body['carts'];
+      orders = body['orders'];
       _isLoading = false;
     });
   }
@@ -105,7 +114,8 @@ class _ProfilePageState extends State<ProfilePage> {
                               CircleAvatar(
                                   radius: 34,
                                   child: CircleAvatar(
-                                    backgroundImage: NetworkImage('$img'),
+                                    backgroundImage: NetworkImage(
+                                        ApiService().imgURL + "$img"),
                                     radius: 32,
                                   )),
                               SizedBox(
@@ -145,7 +155,13 @@ class _ProfilePageState extends State<ProfilePage> {
                             ],
                           ),
                           IconButton(
-                              onPressed: () {},
+                              onPressed: () {
+                                Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => EditProfilePage(),
+                                    ));
+                              },
                               icon: Image.asset(
                                 "assets/images/cib_edit.png",
                                 color: primaryColor,
@@ -176,7 +192,7 @@ class _ProfilePageState extends State<ProfilePage> {
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
                                 BigText(
-                                  text: "$orders",
+                                  text: orders.toString(),
                                   size: 32,
                                   weight: FontWeight.w500,
                                   color: primaryColor,
@@ -222,41 +238,46 @@ class _ProfilePageState extends State<ProfilePage> {
                               ],
                             ),
                           ),
-                          InkWell(
-                            onTap: () {
-                              Navigator.push(
-                                context,
-                                new MaterialPageRoute(
-                                    builder: (context) => WishlistPage()),
-                              );
-                            },
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                BigText(
-                                  text: "$wishlists",
-                                  size: 32,
-                                  weight: FontWeight.w500,
-                                  color: primaryColor,
-                                ),
-                                SizedBox(
-                                  height: 4,
-                                ),
-                                BigText(
-                                  text: "Wishlist",
-                                  size: 14,
-                                  color: black,
-                                  weight: FontWeight.w500,
-                                ),
-                              ],
-                            ),
-                          ),
+                          // InkWell(
+                          //   onTap: () {
+                          //     Navigator.push(
+                          //       context,
+                          //       new MaterialPageRoute(
+                          //           builder: (context) => WishlistPage()),
+                          //     );
+                          //   },
+                          //   child: Column(
+                          //     mainAxisAlignment: MainAxisAlignment.center,
+                          //     children: [
+                          //       BigText(
+                          //         text: "$wishlists",
+                          //         size: 32,
+                          //         weight: FontWeight.w500,
+                          //         color: primaryColor,
+                          //       ),
+                          //       SizedBox(
+                          //         height: 4,
+                          //       ),
+                          //       BigText(
+                          //         text: "Wishlist",
+                          //         size: 14,
+                          //         color: black,
+                          //         weight: FontWeight.w500,
+                          //       ),
+                          //     ],
+                          //   ),
+                          // ),
                         ],
                       ),
                     ),
                     SizedBox(height: 16),
                     InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                  builder: (context) => ConfirmPasswordPage()));
+                        },
                         child: Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: 20, vertical: 16),
@@ -290,7 +311,9 @@ class _ProfilePageState extends State<ProfilePage> {
                         )),
                     SizedBox(height: 16),
                     InkWell(
-                        onTap: () {},
+                        onTap: () {
+                          confirmLogout(context);
+                        },
                         child: Container(
                           padding: EdgeInsets.symmetric(
                               horizontal: 20, vertical: 16),
@@ -325,5 +348,68 @@ class _ProfilePageState extends State<ProfilePage> {
                   ],
                 )),
     );
+  }
+
+  confirmLogout(BuildContext context) {
+    Widget cancel = FlatButton(
+        onPressed: () {
+          Navigator.pop(context);
+        },
+        child: SmallText(
+          text: "Batal",
+        ));
+    Widget confirm = FlatButton(
+        onPressed: () {
+          Navigator.pop(context);
+          logout();
+        },
+        child: SmallText(
+          text: "Logout",
+        ));
+    AlertDialog alert = AlertDialog(
+      title: Text("Konfirmasi Logout"),
+      content: Text("Apakah Anda yakin ingin keluar ?"),
+      actions: [
+        cancel,
+        confirm,
+      ],
+    );
+    // show the dialog
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return alert;
+      },
+    );
+  }
+
+  void logout() async {
+    setState(() {
+      _isLoading = true;
+    });
+    var res = await ApiService().logout('/logout');
+    var body = jsonDecode(res.body);
+    if (body['success']) {
+      SharedPreferences localStorage = await SharedPreferences.getInstance();
+      localStorage.remove('user');
+      localStorage.remove('token');
+      localStorage.remove('id_user');
+      localStorage.remove('subtotal');
+      localStorage.remove('weight');
+      localStorage.clear();
+      setState(() {
+        _isLoading = false;
+      });
+      // Navigator.pushReplacement(
+      //     context, MaterialPageRoute(builder: (context) => WelcomePage()));
+      Navigator.of(context).pushAndRemoveUntil(
+          MaterialPageRoute(builder: (context) => WelcomePage()),
+          (Route<dynamic> route) => false);
+    } else {
+      setState(() {
+        _isLoading = false;
+      });
+      Fluttertoast.showToast(msg: "Terjadi kesalahan...");
+    }
   }
 }

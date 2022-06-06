@@ -12,7 +12,10 @@ import 'package:main/utils/colors.dart';
 import 'package:main/widgets/big_text.dart';
 import 'package:main/widgets/product_text.dart';
 import 'package:main/widgets/small_text.dart';
+import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:carousel_indicator/carousel_indicator.dart';
+import 'package:page_view_dot_indicator/page_view_dot_indicator.dart';
 
 class DetailProductPage extends StatefulWidget {
   int id;
@@ -45,6 +48,8 @@ class _DetailProductPageState extends State<DetailProductPage> {
   List<Product> data = [];
   List<ProductImage> imageList = [];
   List images = [];
+  bool isLoading = true;
+  var pageIndex = 0;
   // String image = DetailProduct.
   var title = "...";
   var description = "......";
@@ -67,6 +72,13 @@ class _DetailProductPageState extends State<DetailProductPage> {
     });
     _getDetailProduk();
     // getProductImage();
+    getImages(id);
+  }
+
+  @override
+  void dispose() {
+    // TODO: implement dispose
+    super.dispose();
   }
 
   void _decrement() {
@@ -114,6 +126,21 @@ class _DetailProductPageState extends State<DetailProductPage> {
     });
   }
 
+  getImages(var id_p) async {
+    setState(() {
+      isLoading = true;
+    });
+    var res = await http.get(ApiService().baseURL + "/product/images/$id_p");
+    var json = jsonDecode(res.body);
+
+    for (var u in json) {
+      images.add(u['image']);
+    }
+    setState(() {
+      isLoading = false;
+    });
+  }
+
   _getImages() async {
     var res = await ApiService().getImages(widget.id);
     var body = json.decode(res.body);
@@ -132,6 +159,32 @@ class _DetailProductPageState extends State<DetailProductPage> {
   }
 
   void addToCart() async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 135,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      backgroundColor: gray,
+                      color: primaryColor,
+                      strokeWidth: 6,
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    SmallText(
+                      text: "Loading...",
+                      size: 14,
+                    )
+                  ]),
+            ),
+          );
+        });
     SharedPreferences preferences = await SharedPreferences.getInstance();
     var id_user = preferences.getInt('id_user');
     var data = {
@@ -143,7 +196,7 @@ class _DetailProductPageState extends State<DetailProductPage> {
     var res = await ApiService().addToCart(data);
     var body = json.decode(res.body);
     var message = body['message'];
-
+    Navigator.of(context).pop(false);
     if (message == "SUCCESS") {
       await ApiService().getUserData();
       _showMsg("Berhasil menambahkan ke Keranjang!");
@@ -169,7 +222,7 @@ class _DetailProductPageState extends State<DetailProductPage> {
     final snackBar = SnackBar(
       content: Text(msg),
       duration: const Duration(seconds: 1),
-      backgroundColor: Color.fromARGB(255, 11, 122, 15),
+      backgroundColor: Color(0xFF0f8a30),
     );
     ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
@@ -178,325 +231,405 @@ class _DetailProductPageState extends State<DetailProductPage> {
   Widget build(BuildContext context) {
     // Product data;
     return Scaffold(
-        backgroundColor: bgWhite,
-        body: SafeArea(
-            child: ListView(
-          children: [
-            Column(
-              children: [
-                Container(
-                  width: double.maxFinite,
-                  height: 60,
-                  color: white,
-                  padding: EdgeInsets.symmetric(horizontal: 6),
-                  child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        IconButton(
-                          onPressed: () {
-                            Navigator.pop(context);
-                          },
-                          icon: Icon(
-                            Icons.arrow_back_rounded,
-                            size: 30,
-                          ),
-                          color: primaryColor,
-                        ),
-                        SizedBox(
-                            width: MediaQuery.of(context).size.width / 1.4,
-                            child: SmallText(
-                              text: title,
-                              size: 18,
-                              weight: FontWeight.w500,
-                              align: TextAlign.center,
-                            )),
-                        IconButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              // DetailPage adalah halaman yang dituju
-                              MaterialPageRoute(
-                                  builder: (context) => CartPage()),
-                            );
-                          },
-                          icon: Icon(
-                            Icons.shopping_cart_rounded,
-                            size: 28,
-                          ),
-                          color: primaryColor,
-                        ),
-                      ]),
-                ),
-                // image produk
-                Container(
-                  width: double.maxFinite,
-                  // height: _height / 2.4,
-                  height: 350,
-                  decoration: BoxDecoration(
-                      image: DecorationImage(
-                          image: NetworkImage(image), fit: BoxFit.cover)),
-                ),
-                // image produk
-                // Container(
-                //     width: double.maxFinite,
-                //     height: MediaQuery.of(context).size.height / 2.5,
-                //     child: PageView.builder(
-                //         itemCount: images.length,
-                //         pageSnapping: true,
-                //         itemBuilder: (context, index) {
-                //           return Container(
-                //               margin: EdgeInsets.all(10),
-                //               child: Image.network(
-                //                 images[index],
-                //                 fit: BoxFit.cover,
-                //               ));
-                //         })
-                //     // width: double.maxFinite,
-                //     // // height: _height / 2.4,
-                //     // height: 350,
-                //     // decoration: BoxDecoration(
-                //     //     image: DecorationImage(
-                //     //         image: NetworkImage(image), fit: BoxFit.cover)),
-                //     ),
-                // product name and price
-                Container(
-                  color: white,
-                  width: double.maxFinite,
-                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                  child: Row(
+      backgroundColor: bgWhite,
+      body: SafeArea(
+          child: ListView(
+        children: [
+          Column(
+            children: [
+              Container(
+                width: double.maxFinite,
+                height: 60,
+                color: white,
+                padding: EdgeInsets.symmetric(horizontal: 6),
+                child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          SizedBox(
-                            width: 240,
-                            child: ProductText(
-                              text: '$title',
-                              size: 16,
-                              weight: FontWeight.w500,
-                            ),
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          ProductText(
-                            text: CurrencyFormat.convertToIdr(price),
-                            size: 18,
-                            weight: FontWeight.w500,
-                            color: primaryColor,
-                          )
-                        ],
-                      ),
                       IconButton(
-                        onPressed: () {},
+                        onPressed: () {
+                          setState(() {
+                            qty = 1;
+                          });
+                          Navigator.pop(context);
+                        },
                         icon: Icon(
-                          Icons.favorite_border_outlined,
+                          Icons.arrow_back_rounded,
+                          size: 30,
                         ),
-                        iconSize: 25,
                         color: primaryColor,
                       ),
-                    ],
+                      SizedBox(
+                          width: MediaQuery.of(context).size.width / 1.4,
+                          child: SmallText(
+                            text: title,
+                            size: 18,
+                            weight: FontWeight.w500,
+                            align: TextAlign.center,
+                          )),
+                      IconButton(
+                        onPressed: () {
+                          setState(() {
+                            qty = 1;
+                          });
+                          Navigator.push(
+                            context,
+                            // DetailPage adalah halaman yang dituju
+                            MaterialPageRoute(builder: (context) => CartPage()),
+                          );
+                        },
+                        icon: Icon(
+                          Icons.shopping_cart_rounded,
+                          size: 28,
+                        ),
+                        color: primaryColor,
+                      ),
+                    ]),
+              ),
+              Container(
+                height: 350,
+                child: PageView.builder(
+                    itemCount: images.length,
+                    pageSnapping: true,
+                    controller: PageController(viewportFraction: 1.0),
+                    onPageChanged: (page) {
+                      setState(() {
+                        pageIndex = page;
+                      });
+                    },
+                    itemBuilder: (context, pageIndex) {
+                      // return Container(
+                      //   // margin: EdgeInsets.all(10),
+                      //   child: Image.network(images[pageIndex]),
+                      // );
+                      return imageItem(pageIndex);
+                    }),
+              ),
+              Container(
+                width: MediaQuery.of(context).size.width,
+                padding: EdgeInsets.only(bottom: 10),
+                height: 24,
+                color: white,
+                child: Center(
+                  child: CarouselIndicator(
+                    count: isLoading ? 1 : images.length,
+                    index: pageIndex,
+                    color: gray,
+                    activeColor: primaryColor,
                   ),
                 ),
-                SizedBox(
-                  height: 14,
-                ),
-                // product info
-                Container(
-                  color: white,
-                  width: double.maxFinite,
-                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.start,
-                    children: [
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SmallText(
-                            text: "Bahan",
-                            size: 14,
-                            weight: FontWeight.w500,
-                          ),
-                          SmallText(
-                            text: materials,
-                            size: 14,
-                            weight: FontWeight.w500,
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SmallText(
-                            text: "Berat",
-                            size: 14,
-                            weight: FontWeight.w500,
-                          ),
-                          SmallText(
-                            text: weight.toString() + " gr",
-                            size: 14,
-                            weight: FontWeight.w500,
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SmallText(
-                            text: "Stok",
-                            size: 14,
-                            weight: FontWeight.w500,
-                          ),
-                          SmallText(
-                            text: stock.toString(),
-                            size: 14,
-                            weight: FontWeight.w500,
-                          ),
-                        ],
-                      ),
-                      SizedBox(
-                        height: 10,
-                      ),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                        children: [
-                          SmallText(
-                            text: "Terjual",
-                            size: 14,
-                            weight: FontWeight.w500,
-                          ),
-                          SmallText(
-                            text: sold.toString(),
-                            size: 14,
-                            weight: FontWeight.w500,
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(
-                  height: 14,
-                ),
-                // product description
-                Container(
-                    color: white,
-                    width: double.maxFinite,
-                    padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        mainAxisAlignment: MainAxisAlignment.start,
-                        children: [
-                          SmallText(
-                            text: "Deskripsi Produk",
-                            size: 15,
-                            weight: FontWeight.w600,
-                            color: black,
-                          ),
-                          SizedBox(
-                            height: 10,
-                          ),
-                          SmallText(
-                            text: description,
-                            // "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptas ex delectus excepturi! Quidem laudantium sapiente, sit id illum earum itaque nobis! Accusantium corporis in possimus eligendi. Exercitationem minus facilis saepe obcaecati numquam nam recusandae labore blanditiis laudantium at, neque adipisci earum eum molestiae, sapiente accusantium est aspernatur rerum ratione! Autem voluptate mollitia accusamus porro dolores quo, ex, aliquam veritatis nemo aliquid odit vitae molestiae tempora ad ullam iste esse ratione eius totam officiis! Laudantium dignissimos suscipit, quisquam cumque voluptatem cum numquam ducimus magni aliquam excepturi inventore ipsum, modi quis ratione laboriosam nulla voluptates optio exercitationem tempora accusamus iure doloremque. Nobis culpa quidem unde ducimus eaque cum illo quo saepe placeat voluptatum qui cupiditate ad laborum velit nemo, doloribus iste voluptas voluptatem numquam. Explicabo harum porro voluptatibus tenetur assumenda eligendi suscipit labore et! Suscipit assumenda, maxime ullam quibusdam eligendi unde, facere laboriosam impedit iste cumque minima fugit a nemo blanditiis in sit reiciendis. Modi, soluta consequatur in et eum pariatur suscipit asperiores. Voluptate consequatur doloremque suscipit qui quia aut, quisquam dolores unde esse totam alias similique labore sint fugiat eius vero sit ut corrupti porro earum aliquid pariatur magnam! Repudiandae, ipsa possimus! Veritatis asperiores molestiae quasi et ratione vel natus soluta?",
-                            color: Color(0xFF404040),
-                            wrap: true,
-                            align: TextAlign.justify,
-                          ),
-                          SizedBox(
-                            height: 8,
-                          )
-                        ])),
-                SizedBox(
-                  height: 12,
-                )
-              ],
-            )
-          ],
-        )),
-        bottomNavigationBar: (Container(
-          height: 75,
-          width: double.maxFinite,
-          decoration: BoxDecoration(color: white, boxShadow: [
-            BoxShadow(color: grey81, offset: Offset(0, 8), blurRadius: 12),
-          ]),
-          padding: EdgeInsets.symmetric(horizontal: 16),
-          child: Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
-              SizedBox(
-                width: 156,
+              ),
+
+              // Container(
+              //   width: MediaQuery.of(context).size.width,
+              //   height: 15,
+              //   color: white,
+              //   child: PageViewDotIndicator(
+              //     currentItem: pageIndex,
+              //     count: isLoading ? 1 : images.length,
+              //     unselectedColor: Colors.black26,
+              //     selectedColor: Colors.blue,
+              //   ),
+              // ),
+
+              // DotsIndicator(
+              //   dotsCount: images.length,
+              //   position: pageIndex.toDouble(),
+              //   decorator: DotsDecorator(
+              //     size: const Size.square(8.0),
+              //     activeSize: const Size(18.0, 9.0),
+              //     activeShape: RoundedRectangleBorder(
+              //         borderRadius: BorderRadius.circular(5.0)),
+              //   ),
+              // ),
+
+              // // image produk
+              // Container(
+              //   width: double.maxFinite,
+              //   // height: _height / 2.4,
+              //   height: 350,
+              //   decoration: BoxDecoration(
+              //       image: DecorationImage(
+              //           image: NetworkImage(image), fit: BoxFit.cover)),
+              // ),
+
+              // title produk
+              // Container(
+              //     width: double.maxFinite,
+              //     height: MediaQuery.of(context).size.height / 2.5,
+              //     child: PageView.builder(
+              //         itemCount: images.length,
+              //         pageSnapping: true,
+              //         itemBuilder: (context, index) {
+              //           return Container(
+              //               margin: EdgeInsets.all(10),
+              //               child: Image.network(
+              //                 images[index],
+              //                 fit: BoxFit.cover,
+              //               ));
+              //         })
+              //     // width: double.maxFinite,
+              //     // // height: _height / 2.4,
+              //     // height: 350,
+              //     // decoration: BoxDecoration(
+              //     //     image: DecorationImage(
+              //     //         image: NetworkImage(image), fit: BoxFit.cover)),
+              //     ),
+
+              // product name and price
+              Container(
+                color: white,
+                width: double.maxFinite,
+                padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                 child: Row(
                   mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    Container(
-                      decoration: BoxDecoration(
-                          color: gray, borderRadius: BorderRadius.circular(12)),
-                      child: IconButton(
-                          onPressed: () {
-                            _decrement();
-                          },
-                          icon: Icon(
-                            Icons.remove,
-                            color: primaryColor,
-                            size: 24,
-                          )),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        SizedBox(
+                          width: 240,
+                          child: ProductText(
+                            text: '$title',
+                            size: 16,
+                            weight: FontWeight.w500,
+                          ),
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        ProductText(
+                          text: CurrencyFormat.convertToIdr(price),
+                          size: 18,
+                          weight: FontWeight.w500,
+                          color: primaryColor,
+                        )
+                      ],
                     ),
-                    BigText(text: '$qty'),
-                    Container(
-                      // padding: EdgeInsets.all(5),
-                      decoration: BoxDecoration(
-                          color: gray, borderRadius: BorderRadius.circular(12)),
-                      child: IconButton(
-                          onPressed: () {
-                            _increment();
-                          },
-                          icon: Icon(
-                            Icons.add,
-                            color: primaryColor,
-                            size: 24,
-                          )),
+                    Icon(
+                      Icons.favorite_border_outlined,
+                      color: Colors.transparent,
                     ),
                   ],
                 ),
               ),
-              Container(
-                width: MediaQuery.of(context).size.width / 2.3,
-                height: 56,
-                decoration: BoxDecoration(
-                  color: primaryLight,
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [primaryColor, secondaryColor]),
-                ),
-                child: TextButton(
-                    style: TextButton.styleFrom(
-                        shadowColor: Color(0xFFd9d9d9),
-                        backgroundColor: Colors.transparent,
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(16),
-                        )),
-                    onPressed: () {
-                      addToCart();
-                    },
-                    child: BigText(
-                      text: "Add to Cart",
-                      color: white,
-                      size: 17,
-                    )),
+              SizedBox(
+                height: 14,
               ),
+              // product info
+              Container(
+                color: white,
+                width: double.maxFinite,
+                padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.start,
+                  children: [
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SmallText(
+                          text: "Bahan",
+                          size: 14,
+                          weight: FontWeight.w500,
+                        ),
+                        SmallText(
+                          text: materials,
+                          size: 14,
+                          weight: FontWeight.w500,
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SmallText(
+                          text: "Berat",
+                          size: 14,
+                          weight: FontWeight.w500,
+                        ),
+                        SmallText(
+                          text: weight.toString() + " gr",
+                          size: 14,
+                          weight: FontWeight.w500,
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SmallText(
+                          text: "Stok",
+                          size: 14,
+                          weight: FontWeight.w500,
+                        ),
+                        SmallText(
+                          text: stock == 0 ? "Habis" : stock.toString(),
+                          size: 14,
+                          weight: FontWeight.w500,
+                          color: stock == 0 ? Colors.red : black,
+                        ),
+                      ],
+                    ),
+                    SizedBox(
+                      height: 10,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        SmallText(
+                          text: "Terjual",
+                          size: 14,
+                          weight: FontWeight.w500,
+                        ),
+                        SmallText(
+                          text: sold.toString(),
+                          size: 14,
+                          weight: FontWeight.w500,
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 14,
+              ),
+              // product description
+              Container(
+                  color: white,
+                  width: double.maxFinite,
+                  padding: EdgeInsets.symmetric(horizontal: 18, vertical: 14),
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      children: [
+                        SmallText(
+                          text: "Deskripsi Produk",
+                          size: 15,
+                          weight: FontWeight.w600,
+                          color: black,
+                        ),
+                        SizedBox(
+                          height: 10,
+                        ),
+                        SmallText(
+                          text: description,
+                          // "Lorem ipsum dolor sit, amet consectetur adipisicing elit. Voluptas ex delectus excepturi! Quidem laudantium sapiente, sit id illum earum itaque nobis! Accusantium corporis in possimus eligendi. Exercitationem minus facilis saepe obcaecati numquam nam recusandae labore blanditiis laudantium at, neque adipisci earum eum molestiae, sapiente accusantium est aspernatur rerum ratione! Autem voluptate mollitia accusamus porro dolores quo, ex, aliquam veritatis nemo aliquid odit vitae molestiae tempora ad ullam iste esse ratione eius totam officiis! Laudantium dignissimos suscipit, quisquam cumque voluptatem cum numquam ducimus magni aliquam excepturi inventore ipsum, modi quis ratione laboriosam nulla voluptates optio exercitationem tempora accusamus iure doloremque. Nobis culpa quidem unde ducimus eaque cum illo quo saepe placeat voluptatum qui cupiditate ad laborum velit nemo, doloribus iste voluptas voluptatem numquam. Explicabo harum porro voluptatibus tenetur assumenda eligendi suscipit labore et! Suscipit assumenda, maxime ullam quibusdam eligendi unde, facere laboriosam impedit iste cumque minima fugit a nemo blanditiis in sit reiciendis. Modi, soluta consequatur in et eum pariatur suscipit asperiores. Voluptate consequatur doloremque suscipit qui quia aut, quisquam dolores unde esse totam alias similique labore sint fugiat eius vero sit ut corrupti porro earum aliquid pariatur magnam! Repudiandae, ipsa possimus! Veritatis asperiores molestiae quasi et ratione vel natus soluta?",
+                          color: Color(0xFF404040),
+                          wrap: true,
+                          align: TextAlign.justify,
+                        ),
+                        SizedBox(
+                          height: 8,
+                        )
+                      ])),
+              SizedBox(
+                height: 20,
+              )
             ],
-          ),
-        )));
+          )
+        ],
+      )),
+      bottomNavigationBar: stock == 0
+          ? Container(
+              height: 0,
+              width: 0,
+            )
+          : Container(
+              height: 75,
+              width: double.maxFinite,
+              decoration: BoxDecoration(color: white, boxShadow: [
+                BoxShadow(color: grey81, offset: Offset(0, 8), blurRadius: 12),
+              ]),
+              padding: EdgeInsets.symmetric(horizontal: 16),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  SizedBox(
+                    width: 156,
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: [
+                        Container(
+                          decoration: BoxDecoration(
+                              color: gray,
+                              borderRadius: BorderRadius.circular(12)),
+                          child: IconButton(
+                              onPressed: () {
+                                _decrement();
+                              },
+                              icon: Icon(
+                                Icons.remove,
+                                color: primaryColor,
+                                size: 24,
+                              )),
+                        ),
+                        BigText(text: '$qty'),
+                        Container(
+                          // padding: EdgeInsets.all(5),
+                          decoration: BoxDecoration(
+                              color: gray,
+                              borderRadius: BorderRadius.circular(12)),
+                          child: IconButton(
+                              onPressed: () {
+                                _increment();
+                              },
+                              icon: Icon(
+                                Icons.add,
+                                color: primaryColor,
+                                size: 24,
+                              )),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Container(
+                    width: MediaQuery.of(context).size.width / 2.3,
+                    height: 56,
+                    decoration: BoxDecoration(
+                      color: primaryLight,
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [primaryColor, secondaryColor]),
+                    ),
+                    child: TextButton(
+                        style: TextButton.styleFrom(
+                            shadowColor: Color(0xFFd9d9d9),
+                            backgroundColor: Colors.transparent,
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(16),
+                            )),
+                        onPressed: () {
+                          addToCart();
+                        },
+                        child: BigText(
+                          text: "Add to Cart",
+                          color: white,
+                          size: 17,
+                        )),
+                  ),
+                ],
+              ),
+            ),
+    );
+  }
+
+  Widget imageItem(int index) {
+    return Container(
+      width: MediaQuery.of(context).size.width,
+      height: MediaQuery.of(context).size.height / 2.8,
+      child: Image.network(
+        images[index],
+        fit: BoxFit.cover,
+      ),
+    );
   }
 }
 

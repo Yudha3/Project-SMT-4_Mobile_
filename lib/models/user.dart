@@ -32,6 +32,7 @@ class User {
   int orders;
   int wishlists;
   int subtotal;
+  String baseURL = "http://10.10.9.217/bumdes_api/public/storage";
 
   factory User.fromJson(Map<String, dynamic> json) => User(
         id: json["id"],
@@ -52,7 +53,7 @@ class User {
         "username": username,
         "email": email,
         "phone": phone,
-        "image": image,
+        "image": "$image",
         "carts": carts,
         "orders": orders,
         "wishlists": wishlists,

@@ -1,11 +1,13 @@
 import 'dart:convert';
 
+import 'package:carousel_slider/carousel_slider.dart';
 import 'package:flutter/material.dart';
 // import 'package:get/get_connect/http/src/utils/utils.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:main/API/api_services.dart';
 import 'package:main/models/app_banner.dart';
 import 'package:main/models/product.dart';
+import 'package:main/models/review.dart';
 import 'package:main/models/user.dart';
 import 'package:main/pages/cart/cart_page.dart';
 import 'package:main/pages/orders/my_order_page.dart';
@@ -13,6 +15,7 @@ import 'package:main/pages/product/catalog_page.dart';
 import 'package:main/pages/product/detail_product_page.dart';
 import 'package:main/pages/product/product_card.dart';
 import 'package:main/pages/profile/profile_page.dart';
+import 'package:main/pages/review/review_ilist_tem.dart';
 import 'package:main/pages/wishlist/wishlist_page.dart';
 import 'package:main/utils/colors.dart';
 import 'package:main/widgets/big_text.dart';
@@ -29,12 +32,15 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  final _formKey = GlobalKey<FormState>();
   bool _isLoading = true;
   int? id;
   var subtotal;
   List<Product> products = [];
   List<User> user = [];
+  List<Review> reviews = [];
   String img = "";
+  var keyword;
 
   void getID() async {
     SharedPreferences pref = await SharedPreferences.getInstance();
@@ -52,10 +58,11 @@ class _HomePageState extends State<HomePage> {
     fetchDataUser();
     fetchDataProduct();
     setState(() {});
+    fetchReviews();
   }
 
   fetchDataProduct() async {
-    var res = await ApiService().getAllProducts();
+    var res = await ApiService().getBestSeller();
     setState(() {
       _isLoading = true;
       products.addAll(res);
@@ -72,6 +79,19 @@ class _HomePageState extends State<HomePage> {
       // _isLoading = true;
       // _isLoading = false;
     });
+  }
+
+  void fetchReviews() async {
+    final res = await ApiService().getAllReviews();
+    setState(() {
+      _isLoading = true;
+      reviews.addAll(res);
+      _isLoading = false;
+    });
+  }
+
+  _showMessage(msg) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
   }
 
   @override
@@ -104,13 +124,13 @@ class _HomePageState extends State<HomePage> {
                       ),
                     ),
                   )
-                : Padding(
-                    padding: const EdgeInsets.only(
-                        top: 12, left: 18, right: 18, bottom: 0),
-                    child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Row(
+                : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                        Container(
+                          padding:
+                              EdgeInsets.only(left: 18, right: 18, top: 12),
+                          child: Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               InkWell(
@@ -125,7 +145,8 @@ class _HomePageState extends State<HomePage> {
                                 child: CircleAvatar(
                                   radius: 20,
                                   child: CircleAvatar(
-                                    backgroundImage: NetworkImage(img),
+                                    backgroundImage: NetworkImage(
+                                        ApiService().imgURL + "$img"),
                                     radius: 18,
                                   ),
                                 ),
@@ -147,49 +168,70 @@ class _HomePageState extends State<HomePage> {
                                   ))
                             ],
                           ),
-                          SizedBox(
-                            height: 16,
+                        ),
+                        SizedBox(
+                          height: 16,
+                        ),
+                        //seacrh bar
+                        Container(
+                          padding: EdgeInsets.only(
+                            left: 18,
+                            right: 18,
                           ),
-                          //seacrh bar
-                          TextField(
-                            style: GoogleFonts.inter(
-                                fontSize: 16,
-                                color: grey40,
-                                fontWeight: FontWeight.w400),
-                            decoration: InputDecoration(
-                                contentPadding:
-                                    EdgeInsets.symmetric(vertical: 10),
-                                filled: true,
-                                fillColor: Color(0xFFF1f1f1),
-                                focusedBorder: OutlineInputBorder(
-                                  borderSide:
-                                      BorderSide(color: grey81, width: 1),
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                focusColor: grey81,
-                                border: OutlineInputBorder(
-                                    borderRadius: BorderRadius.circular(12),
+                          child: Form(
+                            key: _formKey,
+                            child: TextFormField(
+                              onSaved: (newValue) => keyword = newValue!,
+                              // onTap: () {
+                              //   ScaffoldMessenger.of(context).showSnackBar(
+                              //       SnackBar(content: Text("Anjay")));
+                              // },
+                              // onEditingComplete: _showMessage("ifgwbi"),
+                              style: GoogleFonts.inter(
+                                  fontSize: 16,
+                                  color: grey40,
+                                  fontWeight: FontWeight.w400),
+                              decoration: InputDecoration(
+                                  contentPadding:
+                                      EdgeInsets.symmetric(vertical: 10),
+                                  filled: true,
+                                  fillColor: Color(0xFFF1f1f1),
+                                  focusedBorder: OutlineInputBorder(
                                     borderSide:
-                                        BorderSide(color: grey81, width: 1)),
-                                hintText: "Cari",
-                                prefixIcon: Icon(
-                                  Icons.search_rounded,
-                                  color: grey81,
-                                ),
-                                prefixIconColor: grey81,
-                                iconColor: grey81),
+                                        BorderSide(color: grey81, width: 1),
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                  focusColor: grey81,
+                                  border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                      borderSide:
+                                          BorderSide(color: grey81, width: 1)),
+                                  hintText: "Cari",
+                                  prefixIcon: Icon(
+                                    Icons.search_rounded,
+                                    color: grey81,
+                                  ),
+                                  prefixIconColor: grey81,
+                                  iconColor: grey81),
+                            ),
                           ),
-                          SingleChildScrollView(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                SizedBox(
-                                  height: 20,
+                        ),
+                        SingleChildScrollView(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              SizedBox(
+                                height: 20,
+                              ),
+                              // menu utama
+                              Container(
+                                padding: EdgeInsets.only(
+                                  left: 18,
+                                  right: 18,
                                 ),
-                                // menu utama
-                                Row(
+                                child: Row(
                                   mainAxisAlignment:
-                                      MainAxisAlignment.spaceAround,
+                                      MainAxisAlignment.spaceEvenly,
                                   children: [
                                     //button produk
                                     Column(
@@ -297,220 +339,288 @@ class _HomePageState extends State<HomePage> {
                                       ],
                                     ),
                                     // button favorit
+                                    // Column(
+                                    //   children: [
+                                    //     ElevatedButton(
+                                    //       onPressed: () {
+                                    //         Navigator.push(
+                                    //           context,
+                                    //           MaterialPageRoute(
+                                    //               builder: (context) =>
+                                    //                   WishlistPage()),
+                                    //         );
+                                    //       },
+                                    //       child: Image(
+                                    //         image: AssetImage(
+                                    //             "assets/images/cib_favorite.png"),
+                                    //         width: 30,
+                                    //         height: 30,
+                                    //       ),
+                                    //       style: ElevatedButton.styleFrom(
+                                    //         primary: primaryLight,
+                                    //         shape: CircleBorder(),
+                                    //         padding: EdgeInsets.all(16),
+                                    //       ),
+                                    //     ),
+                                    //     SizedBox(
+                                    //       height: 8,
+                                    //     ),
+                                    //     BigText(
+                                    //       text: "Wishlist",
+                                    //       size: 14,
+                                    //       weight: FontWeight.w500,
+                                    //       color: primaryColor,
+                                    //     )
+                                    //   ],
+                                    // ),
+                                  ],
+                                ),
+                              ),
+                              SizedBox(
+                                height: 24,
+                              ),
+                              // banner utama
+                              Container(
+                                height: 180,
+                                width: double.maxFinite,
+                                margin: EdgeInsets.only(
+                                  left: 18,
+                                  right: 18,
+                                ),
+                                padding: EdgeInsets.only(left: 24, top: 24),
+                                decoration: BoxDecoration(
+                                    gradient: LinearGradient(
+                                        begin: Alignment.topCenter,
+                                        end: Alignment.bottomCenter,
+                                        colors: [primaryColor, secondaryColor]),
+                                    borderRadius: BorderRadius.circular(16)),
+                                child: Stack(
+                                  children: [
+                                    //gambar banner
+                                    Positioned(
+                                        bottom: -5,
+                                        right: 6,
+                                        child: Image(
+                                          image: AssetImage(
+                                              "assets/images/drawkit1.png"),
+                                          height: 136,
+                                        )),
+                                    //text and button
                                     Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
-                                        ElevatedButton(
-                                          onPressed: () {
-                                            Navigator.push(
-                                              context,
-                                              MaterialPageRoute(
-                                                  builder: (context) =>
-                                                      WishlistPage()),
-                                            );
-                                          },
-                                          child: Image(
-                                            image: AssetImage(
-                                                "assets/images/cib_favorite.png"),
-                                            width: 30,
-                                            height: 30,
-                                          ),
-                                          style: ElevatedButton.styleFrom(
-                                            primary: primaryLight,
-                                            shape: CircleBorder(),
-                                            padding: EdgeInsets.all(16),
+                                        SizedBox(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width /
+                                              2,
+                                          child: ProductText(
+                                            text:
+                                                "Discover anything you want here...",
+                                            size: 18,
+                                            weight: FontWeight.w700,
+                                            color: white,
+                                            height: 1.6,
                                           ),
                                         ),
                                         SizedBox(
-                                          height: 8,
+                                          height: 12,
                                         ),
-                                        BigText(
-                                          text: "Wishlist",
-                                          size: 14,
-                                          weight: FontWeight.w500,
-                                          color: primaryColor,
-                                        )
+                                        //button explore
+                                        ElevatedButton(
+                                          onPressed: () {
+                                            Navigator.push(
+                                                context,
+                                                MaterialPageRoute(
+                                                    builder: (context) =>
+                                                        CatalogPage()));
+                                          },
+                                          child: SmallText(
+                                            text: "Explore",
+                                            color: primaryColor,
+                                            size: 14.5,
+                                            weight: FontWeight.w600,
+                                          ),
+                                          style: ElevatedButton.styleFrom(
+                                            primary: white,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(
+                                                      12), // <-- Radius
+                                            ),
+                                            padding: EdgeInsets.symmetric(
+                                                horizontal: 20, vertical: 9),
+                                          ),
+                                        ),
                                       ],
-                                    ),
+                                    )
                                   ],
                                 ),
-                                SizedBox(
-                                  height: 20,
+                              ),
+                              SizedBox(
+                                height: 24,
+                              ),
+                              Container(
+                                padding: EdgeInsets.only(
+                                  left: 18,
+                                  right: 18,
                                 ),
-                                // banner utama
-                                Container(
-                                  height: 180,
-                                  width: double.maxFinite,
-                                  padding: EdgeInsets.only(left: 24, top: 24),
-                                  decoration: BoxDecoration(
-                                      gradient: LinearGradient(
-                                          begin: Alignment.topCenter,
-                                          end: Alignment.bottomCenter,
-                                          colors: [
-                                            primaryColor,
-                                            secondaryColor
-                                          ]),
-                                      borderRadius: BorderRadius.circular(16)),
-                                  child: Stack(
-                                    children: [
-                                      //gambar banner
-                                      Positioned(
-                                          bottom: -5,
-                                          right: 6,
-                                          child: Image(
-                                            image: AssetImage(
-                                                "assets/images/drawkit1.png"),
-                                            height: 136,
-                                          )),
-                                      //text and button
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        children: [
-                                          SizedBox(
-                                            width: MediaQuery.of(context)
-                                                    .size
-                                                    .width /
-                                                2,
-                                            child: ProductText(
-                                              text:
-                                                  "Discover anything you want here...",
-                                              size: 18,
-                                              weight: FontWeight.w700,
-                                              color: white,
-                                              height: 1.6,
-                                            ),
-                                          ),
-                                          SizedBox(
-                                            height: 12,
-                                          ),
-                                          //button explore
-                                          ElevatedButton(
-                                            onPressed: () {
-                                              Navigator.push(
-                                                  context,
-                                                  MaterialPageRoute(
-                                                      builder: (context) =>
-                                                          CatalogPage()));
-                                            },
-                                            child: SmallText(
-                                              text: "Explore",
-                                              color: primaryColor,
-                                              size: 14.5,
-                                              weight: FontWeight.w600,
-                                            ),
-                                            style: ElevatedButton.styleFrom(
-                                              primary: white,
-                                              shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        12), // <-- Radius
-                                              ),
-                                              padding: EdgeInsets.symmetric(
-                                                  horizontal: 20, vertical: 9),
-                                            ),
-                                          ),
-                                        ],
-                                      )
-                                    ],
-                                  ),
-                                ),
-                                SizedBox(
-                                  height: 24,
-                                ),
-                                BigText(
-                                  text: "Best Seller Products",
+                                child: BigText(
+                                  text: "Best Seller",
                                   size: 18,
                                 ),
-                                SizedBox(
-                                  height: 16,
-                                ),
+                              ),
+                              SizedBox(
+                                height: 16,
+                              ),
 
-                                // Container(
-                                //   height: 196,
-                                //   child: ListView.builder(
-                                //       scrollDirection: Axis.horizontal,
-                                //       itemCount: bannerList.length,
-                                //       itemBuilder: (context, index) {
-                                //         return Container(
-                                //           height: 196,
-                                //           width: 135,
-                                //           margin: EdgeInsets.symmetric(
-                                //             horizontal: 6,
-                                //           ),
-                                //           padding: EdgeInsets.all(5),
-                                //           decoration: BoxDecoration(
-                                //             border:
-                                //                 Border.all(color: primaryColor, width: 2),
-                                //             color: white,
-                                //             borderRadius: BorderRadius.circular(15),
-                                //           ),
-                                //           child: Column(
-                                //             crossAxisAlignment: CrossAxisAlignment.start,
-                                //             children: [
-                                //               Container(
-                                //                 width: 125,
-                                //                 height: 125,
-                                //                 decoration: BoxDecoration(
-                                //                     borderRadius:
-                                //                         BorderRadius.circular(14),
-                                //                     image: DecorationImage(
-                                //                         image: AssetImage(
-                                //                             "assets/images/craft0.png"),
-                                //                         fit: BoxFit.cover)),
-                                //               ),
-                                //               SizedBox(
-                                //                 height: 5,
-                                //               ),
-                                //               Padding(
-                                //                 padding: const EdgeInsets.only(
-                                //                     left: 4, right: 4),
-                                //                 child: SmallText(
-                                //                   text: bannerList[index].name,
-                                //                   size: 12,
-                                //                 ),
-                                //               ),
-                                //               SizedBox(
-                                //                 height: 6,
-                                //               ),
-                                //               Padding(
-                                //                 padding: const EdgeInsets.only(
-                                //                     left: 4, right: 4),
-                                //                 child: BigText(
-                                //                   text: "Rp " +
-                                //                       bannerList[index].price.toString(),
-                                //                   size: 13,
-                                //                   color: primaryColor,
-                                //                 ),
-                                //               ),
-                                //               SizedBox(
-                                //                 height: 12,
-                                //               )
-                                //             ],
-                                //           ),
-                                //         );
-                                //       }),
-                                // ),
+                              // Container(
+                              //   height: 196,
+                              //   child: ListView.builder(
+                              //       scrollDirection: Axis.horizontal,
+                              //       itemCount: bannerList.length,
+                              //       itemBuilder: (context, index) {
+                              //         return Container(
+                              //           height: 196,
+                              //           width: 135,
+                              //           margin: EdgeInsets.symmetric(
+                              //             horizontal: 6,
+                              //           ),
+                              //           padding: EdgeInsets.all(5),
+                              //           decoration: BoxDecoration(
+                              //             border:
+                              //                 Border.all(color: primaryColor, width: 2),
+                              //             color: white,
+                              //             borderRadius: BorderRadius.circular(15),
+                              //           ),
+                              //           child: Column(
+                              //             crossAxisAlignment: CrossAxisAlignment.start,
+                              //             children: [
+                              //               Container(
+                              //                 width: 125,
+                              //                 height: 125,
+                              //                 decoration: BoxDecoration(
+                              //                     borderRadius:
+                              //                         BorderRadius.circular(14),
+                              //                     image: DecorationImage(
+                              //                         image: AssetImage(
+                              //                             "assets/images/craft0.png"),
+                              //                         fit: BoxFit.cover)),
+                              //               ),
+                              //               SizedBox(
+                              //                 height: 5,
+                              //               ),
+                              //               Padding(
+                              //                 padding: const EdgeInsets.only(
+                              //                     left: 4, right: 4),
+                              //                 child: SmallText(
+                              //                   text: bannerList[index].name,
+                              //                   size: 12,
+                              //                 ),
+                              //               ),
+                              //               SizedBox(
+                              //                 height: 6,
+                              //               ),
+                              //               Padding(
+                              //                 padding: const EdgeInsets.only(
+                              //                     left: 4, right: 4),
+                              //                 child: BigText(
+                              //                   text: "Rp " +
+                              //                       bannerList[index].price.toString(),
+                              //                   size: 13,
+                              //                   color: primaryColor,
+                              //                 ),
+                              //               ),
+                              //               SizedBox(
+                              //                 height: 12,
+                              //               )
+                              //             ],
+                              //           ),
+                              //         );
+                              //       }),
+                              // ),
 
-                                Container(
-                                  // color: grey81,
-                                  height:
-                                      MediaQuery.of(context).size.height / 3.95,
-                                  child: ListView(
-                                    scrollDirection: Axis.horizontal,
-                                    children: products
-                                        .map((product) => BestSellerCard(
-                                            product: product, id: product.id))
-                                        .toList(),
-                                  ),
+                              Container(
+                                // color: grey81,
+                                height:
+                                    // MediaQuery.of(context).size.height / 3.95,
+                                    196,
+                                padding: EdgeInsets.only(
+                                  left: 12,
                                 ),
-                                SizedBox(
-                                  height: 32,
-                                )
-                              ],
-                            ),
+                                child: ListView(
+                                  scrollDirection: Axis.horizontal,
+                                  children: products
+                                      .map((product) => BestSellerCard(
+                                          product: product, id: product.id))
+                                      .toList(),
+                                ),
+                              ),
+                              SizedBox(
+                                height: 24,
+                              ),
+                              reviews.length == 0
+                                  ? Container(
+                                      height: 0,
+                                      width: 0,
+                                    )
+                                  : Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        Container(
+                                            padding: EdgeInsets.only(
+                                              left: 18,
+                                              right: 18,
+                                            ),
+                                            child: BigText(
+                                                text: "Ulasan Pelanggan")),
+                                        SizedBox(
+                                          height: 8,
+                                        ),
+                                        Container(
+                                          // color: grey81,
+                                          height:
+                                              // MediaQuery.of(context).size.height / 3.95,
+                                              160,
+                                          width:
+                                              MediaQuery.of(context).size.width,
+                                          child: CarouselSlider(
+                                              options: CarouselOptions(
+                                                autoPlay: reviews.length == 1
+                                                    ? false
+                                                    : true,
+                                                autoPlayAnimationDuration:
+                                                    Duration(
+                                                        milliseconds: 1000),
+                                                autoPlayCurve:
+                                                    Curves.fastOutSlowIn,
+                                                pauseAutoPlayOnTouch: true,
+                                                enlargeCenterPage: true,
+                                                viewportFraction:
+                                                    reviews.length == 1
+                                                        ? 0.9
+                                                        : 0.8,
+                                              ),
+                                              items: reviews.map((review) {
+                                                return Center(
+                                                  child: ReviewItem(
+                                                    review: review,
+                                                    id: review.id,
+                                                  ),
+                                                );
+                                              }).toList()),
+                                        ),
+                                        SizedBox(
+                                          height: 32,
+                                        ),
+                                      ],
+                                    ),
+                            ],
                           ),
-                        ]),
-                  ),
+                        ),
+                      ]),
           ),
         ),
       ),
@@ -545,6 +655,7 @@ class BestSellerCard extends StatelessWidget {
         },
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             Container(
               width: 125,
@@ -557,29 +668,37 @@ class BestSellerCard extends StatelessWidget {
             SizedBox(
               height: 10,
             ),
-            Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4),
-              child: SmallText(
-                text: product.title,
-                size: 12.5,
-                weight: FontWeight.w500,
-              ),
-            ),
             SizedBox(
-              height: 4,
-            ),
-            Padding(
-              padding: const EdgeInsets.only(left: 4, right: 4),
-              child: BigText(
-                // text: "Rp " + product.price.toString(),
-                text: CurrencyFormat.convertToIdr(product.price),
-                size: 13.5,
-                color: primaryColor,
+              width: MediaQuery.of(context).size.width / 2.9,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, right: 4),
+                    child: SmallText(
+                      text: product.title,
+                      size: 12.5,
+                      weight: FontWeight.w500,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 4,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 4, right: 4),
+                    child: BigText(
+                      // text: "Rp " + product.price.toString(),
+                      text: CurrencyFormat.convertToIdr(product.price),
+                      size: 13.5,
+                      color: primaryColor,
+                    ),
+                  ),
+                  SizedBox(
+                    height: 10,
+                  )
+                ],
               ),
             ),
-            // SizedBox(
-            //   height: 10,
-            // )
           ],
         ),
       ),

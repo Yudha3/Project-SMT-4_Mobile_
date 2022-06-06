@@ -1,96 +1,412 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:main/API/api_services.dart';
+import 'package:main/pages/profile/profile_page.dart';
 import 'package:main/widgets/big_text.dart';
 import 'package:main/utils/colors.dart';
 
+import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
+import 'package:main/widgets/small_text.dart';
+
 class EditPhotoPage extends StatefulWidget {
-  const EditPhotoPage({Key? key}) : super(key: key);
+  int id;
+  String img;
+  EditPhotoPage({Key? key, required this.id, required this.img})
+      : super(key: key);
 
   @override
   State<EditPhotoPage> createState() => _EditPhotoPageState();
 }
 
 class _EditPhotoPageState extends State<EditPhotoPage> {
+  int id_user = 0;
+  String img = "";
+
+  PickedFile? _imageFile;
+  final ImagePicker _picker = ImagePicker();
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    setState(() {
+      id_user = widget.id;
+      img = widget.img;
+    });
+  }
+
+  void _pickImage() async {
+    try {
+      final pickedFile = await _picker.getImage(source: ImageSource.gallery);
+      setState(() {
+        _imageFile = pickedFile;
+      });
+    } catch (e) {
+      Fluttertoast.showToast(msg: "Gagal memilih gambar\n" + e.toString());
+    }
+  }
+
+  Widget _previewImage() {
+    if (_imageFile != null) {
+      return Container(
+        height: MediaQuery.of(context).size.height / 2.6,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: <Widget>[
+            Container(
+                width: MediaQuery.of(context).size.width / 2,
+                height: MediaQuery.of(context).size.width / 2,
+                margin: EdgeInsets.only(left: 18, right: 18, top: 24),
+                padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.width / 2.85,
+                    left: MediaQuery.of(context).size.width / 3.15),
+                decoration: BoxDecoration(
+                  border: Border.all(width: 2.5, color: primaryColor),
+                  borderRadius: BorderRadius.circular(
+                      MediaQuery.of(context).size.width / 3),
+                  image: DecorationImage(
+                      image: FileImage(File(_imageFile!.path)),
+                      fit: BoxFit.cover),
+                ),
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: primaryColor,
+                      child: InkWell(
+                        child: Icon(
+                          Icons.camera_alt_rounded,
+                          color: white,
+                        ),
+                        onTap: _pickImage,
+                      ),
+                    ),
+                  ],
+                )),
+            SizedBox(
+              height: 20,
+            ),
+          ],
+        ),
+      );
+    } else {
+      return Container(
+        height: MediaQuery.of(context).size.height / 2.6,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          crossAxisAlignment: CrossAxisAlignment.center,
+          children: [
+            Container(
+                width: MediaQuery.of(context).size.width / 2,
+                height: MediaQuery.of(context).size.width / 2,
+                margin: EdgeInsets.only(left: 18, right: 18, top: 24),
+                padding: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.width / 2.85,
+                    left: MediaQuery.of(context).size.width / 3.15),
+                decoration: BoxDecoration(
+                  border: Border.all(width: 2.5, color: primaryColor),
+                  borderRadius: BorderRadius.circular(
+                      MediaQuery.of(context).size.width / 3),
+                  image: DecorationImage(
+                      image: NetworkImage(img), fit: BoxFit.cover),
+                ),
+                child: Column(
+                  children: [
+                    CircleAvatar(
+                      backgroundColor: primaryColor,
+                      child: InkWell(
+                        child: Icon(
+                          Icons.camera_alt_rounded,
+                          color: white,
+                        ),
+                        onTap: _pickImage,
+                      ),
+                    ),
+                  ],
+                )),
+            SizedBox(
+              height: 30,
+            )
+          ],
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: bgWhite,
       body: SafeArea(
-          child: Column(
-        children: [
-          Container(
-            width: double.maxFinite,
-            height: 60,
-            color: white,
-            padding: EdgeInsets.symmetric(horizontal: 6),
-            child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  IconButton(
-                    onPressed: () {
-                      Navigator.pop(context);
-                    },
-                    icon: Icon(
-                      Icons.arrow_back_rounded,
-                      size: 30,
-                    ),
-                    color: primaryColor,
-                  ),
-                  BigText(text: "Edit Foto Profil"),
-                  Icon(
-                    Icons.close,
-                    size: 30,
-                    color: Colors.transparent,
-                  ),
-                ]),
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(vertical: 20),
-            color: white,
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                Column(
-                  children: [
-                    InkWell(
-                      onTap: () {},
-                      child: CircleAvatar(
-                        radius: 70,
-                        backgroundColor: primaryColor,
-                        child: CircleAvatar(
-                          radius: 68,
-                          child: Text(
-                            'Select Image To Upload',
-                            textAlign: TextAlign.center,
-                          ),
+        child: Container(
+          width: MediaQuery.of(context).size.width,
+          height: MediaQuery.of(context).size.height,
+          child: Wrap(
+            direction: Axis.vertical,
+            children: [
+              Container(
+                width: MediaQuery.of(context).size.width,
+                height: 60,
+                color: Colors.white,
+                padding: EdgeInsets.symmetric(horizontal: 6),
+                margin: EdgeInsets.only(bottom: 0),
+                child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      IconButton(
+                        onPressed: () {
+                          Navigator.pop(context);
+                        },
+                        icon: Icon(
+                          Icons.arrow_back_rounded,
+                          size: 30,
                         ),
+                        color: Colors.indigo,
                       ),
-                    ),
-                    SizedBox(height: 15),
-                    Container(
-                      height: 350,
-                      color: white,
-                      padding:
-                          EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-                      child: Column(
-                        children: [
-                          ElevatedButton(
-                              style: ElevatedButton.styleFrom(
-                                  minimumSize: Size(350, 50),
-                                  primary: primaryColor,
-                                  shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(15))),
-                              onPressed: () {},
-                              child: Text('Simpan Foto'))
-                        ],
+                      BigText(text: "Perbarui Foto Profil"),
+                      Icon(
+                        Icons.close,
+                        size: 30,
+                        color: Colors.transparent,
                       ),
-                    ),
-                  ],
-                ),
-              ],
-            ),
+                    ]),
+              ),
+              Container(
+                  width: MediaQuery.of(context).size.width,
+                  // height: MediaQuery.of(context).size.height,
+                  child: FutureBuilder<void>(
+                    future: retriveLostData(),
+                    builder:
+                        (BuildContext context, AsyncSnapshot<void> snapshot) {
+                      switch (snapshot.connectionState) {
+                        case ConnectionState.none:
+                        case ConnectionState.waiting:
+                          return const Text('Picked an image');
+                        case ConnectionState.done:
+                          return _previewImage();
+                        default:
+                          return const Text('Picked an image');
+                      }
+                    },
+                  )),
+            ],
           ),
-        ],
-      )),
+        ),
+      ),
+      bottomNavigationBar: _imageFile == null
+          ? Container(
+              height: 0,
+              width: 0,
+            )
+          : Container(
+              padding: EdgeInsets.only(left: 25, bottom: 20, right: 25),
+              child: ElevatedButton(
+                onPressed: () {
+                  uploadImage(_imageFile!.path);
+                },
+                child: BigText(
+                  text: 'Simpan',
+                  color: white,
+                  size: 15,
+                ),
+                style: ElevatedButton.styleFrom(
+                  minimumSize: Size(300, 56),
+                  primary: primaryColor,
+                  shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12)),
+                ),
+              ),
+            ),
     );
+  }
+
+  Future<void> retriveLostData() async {
+    final LostData response = await _picker.getLostData();
+    if (response.isEmpty) {
+      return;
+    }
+    if (response.file != null) {
+      setState(() {
+        _imageFile = response.file;
+      });
+    } else {
+      // print('Retrieve error ' + response.exception.code);
+      _showMsgError('Terjadi kesalahan : ' + response.exception.code);
+
+      // ScaffoldMessenger.of(context)
+      //     .showSnackBar(SnackBar(content: Text(response.exception.code)));
+    }
+  }
+
+  void uploadImage(filepath) async {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 135,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      backgroundColor: Colors.white70,
+                      color: Colors.indigo,
+                      strokeWidth: 6,
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    SmallText(text: "Loading...", size: 13.6),
+                  ]),
+            ),
+          );
+        });
+    var request = http.MultipartRequest(
+        'POST', Uri.parse(ApiService().baseURL + '/user/edit/photo'));
+    request.files.add(await http.MultipartFile.fromPath('image', filepath));
+    request.fields.addAll({
+      "id_user": widget.id.toString(),
+    });
+    var res = await request.send();
+    // var response = res.reasonPhrase;
+    var code = res.statusCode;
+    if (code == 200) {
+      Navigator.of(context).pop(false);
+      // ScaffoldMessenger.of(context)
+      //     .showSnackBar(SnackBar(content: Text("OK DONG!")));
+      _showSuccess();
+    } else {
+      Navigator.of(context).pop(false);
+      // ScaffoldMessenger.of(context)
+      //     .showSnackBar(SnackBar(content: Text("YAAH GAGAL!")));
+      // _showError();
+      Fluttertoast.showToast(msg: "Gagal memperbarui foto profil!");
+    }
+  }
+
+  _showError() {
+    // Widget okBtn = FlatButton(onPressed: (onPressed), child: child)
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 170,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/error.png',
+                      width: 56,
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    SmallText(
+                      align: TextAlign.center,
+                      text: "Gagal ",
+                      size: 15,
+                    ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    InkWell(
+                        onTap: () {
+                          Navigator.of(context).pop(true);
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProfilePage(),
+                              )).then((value) => ApiService().getUserData());
+                        },
+                        child: Container(
+                          width: double.maxFinite,
+                          height: 45,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: primaryColor,
+                          ),
+                          child: Center(
+                              child:
+                                  BigText(text: "OK", color: white, size: 14)),
+                        )),
+                  ]),
+            ),
+          );
+        });
+  }
+
+  _showSuccess() {
+    // Widget okBtn = FlatButton(onPressed: (onPressed), child: child)
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 170,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/check.png',
+                      width: 56,
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    SmallText(
+                      align: TextAlign.center,
+                      text: "Berhasil menggunggah gambar",
+                      size: 15,
+                    ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    InkWell(
+                        onTap: () {
+                          Navigator.of(context).pop(true);
+                          Navigator.of(context).pop(true);
+                          Navigator.of(context).pop(true);
+                          // Navigator.pushReplacement(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //       builder: (context) =>
+                          //           DetailOrderPage(id: widget.id_trasanction),
+                          //     ));
+                          Navigator.pushReplacement(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ProfilePage(),
+                              )).then((value) => ApiService().getUserData());
+                        },
+                        child: Container(
+                          width: double.maxFinite,
+                          height: 45,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: primaryColor,
+                          ),
+                          child: Center(
+                              child:
+                                  BigText(text: "OK", color: white, size: 14)),
+                        )),
+                  ]),
+            ),
+          );
+        });
+  }
+
+  _showMsgError(msg) {
+    final snackBar = SnackBar(
+      content: Text(msg),
+      duration: const Duration(seconds: 1),
+      backgroundColor: Colors.red,
+    );
+    ScaffoldMessenger.of(context).showSnackBar(snackBar);
   }
 }

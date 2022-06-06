@@ -11,8 +11,6 @@ import 'package:main/utils/textstyle.dart';
 import 'package:main/widgets/big_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-enum Gender { pria, wanita }
-
 class RegisterPage extends StatefulWidget {
   const RegisterPage({Key? key}) : super(key: key);
 
@@ -26,7 +24,6 @@ class _RegisterPageState extends State<RegisterPage> {
   var email, password, confpass, name, username, phone;
   bool _isObscure1 = true;
   bool _isObscure2 = true;
-  Gender? _gender = Gender.pria;
 
   _showMsg(msg) {
     final snackBar = SnackBar(
@@ -101,54 +98,6 @@ class _RegisterPageState extends State<RegisterPage> {
                                 borderSide: BorderSide(
                                     width: 1, color: Color(0xFF818181))),
                           ),
-                        ),
-                        SizedBox(
-                          height: 15,
-                        ),
-                        //radio jenis kelamin
-                        Column(
-                          children: [
-                            Row(
-                              children: [
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Radio<Gender>(
-                                        value: Gender.pria,
-                                        groupValue: _gender,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _gender = value;
-                                          });
-                                        },
-                                      ),
-                                      Expanded(
-                                        child: Text('Laki-Laki'),
-                                      )
-                                    ],
-                                  ),
-                                  flex: 1,
-                                ),
-                                Expanded(
-                                  child: Row(
-                                    children: [
-                                      Radio<Gender>(
-                                        value: Gender.wanita,
-                                        groupValue: _gender,
-                                        onChanged: (value) {
-                                          setState(() {
-                                            _gender = value;
-                                          });
-                                        },
-                                      ),
-                                      Expanded(child: Text('Perempuan'))
-                                    ],
-                                  ),
-                                  flex: 1,
-                                ),
-                              ],
-                            ),
-                          ],
                         ),
                         SizedBox(
                           height: 15,
@@ -407,7 +356,9 @@ class _RegisterPageState extends State<RegisterPage> {
       'password': password,
       'phone': phone,
       'username': username,
-      'gender': 'Not set'
+      'gender': 'Not set',
+      'roles': 'USER',
+      'image': "assets/user_profile/default_user.png",
     };
 
     var res = await ApiService().auth(data, '/register');

@@ -7,12 +7,14 @@ import 'package:main/models/detail_product.dart';
 import 'package:main/models/order.dart';
 import 'package:main/models/picsum.dart';
 import 'package:main/models/product.dart';
+import 'package:main/models/review.dart';
 import 'package:main/models/user.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ApiService {
-  final String baseURL = 'http://192.168.1.2/coba_api/public/api';
+  final String baseURL = 'http://192.168.1.7/bumdes_api/public/api';
   var token;
+  final String imgURL = "http://192.168.1.7/bumdes_api/storage/app/public/";
 
   Future<List<Picsum>> get() async {
     try {
@@ -34,6 +36,21 @@ class ApiService {
   Future<List<Product>> getAllProducts() async {
     try {
       final response = await http.get(Uri.parse("$baseURL/products"));
+      if (response.statusCode == 200) {
+        List<dynamic> json = jsonDecode(response.body);
+        return List<Product>.from(json.map((e) => Product.fromJson(e)));
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
+    }
+  }
+
+  Future<List<Product>> getBestSeller() async {
+    try {
+      final response =
+          await http.get(Uri.parse("$baseURL/products/bestseller"));
       if (response.statusCode == 200) {
         List<dynamic> json = jsonDecode(response.body);
         return List<Product>.from(json.map((e) => Product.fromJson(e)));
@@ -163,6 +180,34 @@ class ApiService {
     return await http.post("$baseURL/order", body: data);
   }
 
+  confirmOrder(data) async {
+    return await http.post(
+      "$baseURL/order/confirm/$data",
+      // body: json.encode(data),
+    );
+  }
+
+  // REVIEW
+  // get all reviews
+  Future<List<Review>> getAllReviews() async {
+    try {
+      final response = await http.get(Uri.parse("$baseURL/reviews"));
+      if (response.statusCode == 200) {
+        List<dynamic> json = jsonDecode(response.body);
+        return List<Review>.from(json.map((e) => Review.fromJson(e)));
+      } else {
+        return [];
+      }
+    } catch (e) {
+      return [];
+    }
+  }
+
+  createReview(data) async {
+    return await http.post("$baseURL/review/create",
+        body: jsonEncode(data), headers: _setHeaders());
+  }
+
   // auth login, register, logout
   auth(data, apiURL) async {
     var fullUrl = baseURL + apiURL;
@@ -186,6 +231,24 @@ class ApiService {
     token = jsonDecode(localStorage.getString('token'))['token'];
   }
 
+  cekPassword(var data) async {
+    return await http.post(
+      "$baseURL/user/check/password",
+      body: jsonEncode(data),
+      headers: _setHeaders(),
+    );
+  }
+
+  changePassword(var data) async {
+    return await http.post("$baseURL/user/change/password",
+        body: jsonEncode(data), headers: _setHeaders());
+  }
+
+  updateProfile(var data) async {
+    return await http.post("$baseURL/user/edit",
+        body: jsonEncode(data), headers: _setHeaders());
+  }
+
   // ambil data user
   // Future<List<User>> _getUserData() async {
   //   SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -204,7 +267,7 @@ class ApiService {
   //   }
   // }
 
-  getData(apiURL) async {
+  logout(apiURL) async {
     var fullUrl = baseURL + apiURL;
     await _getToken();
     return await http.get(

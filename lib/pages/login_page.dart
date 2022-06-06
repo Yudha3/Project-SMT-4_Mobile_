@@ -4,6 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:flutter/material.dart';
 import 'package:main/API/api_services.dart';
+import 'package:main/pages/home/home_page.dart';
 import 'package:main/pages/main_page.dart';
 import 'package:main/pages/register_page.dart';
 import 'package:main/utils/colors.dart';
@@ -252,10 +253,15 @@ class _LoginPageState extends State<LoginPage> {
       // var response = await ApiService().getUserData();
       // localStorage.setInt('subtotal', id);
       // localStorage.
+
       Navigator.pushReplacement(
         context,
-        new MaterialPageRoute(builder: (context) => MainPage()),
+        new MaterialPageRoute(builder: (context) => HomePage()),
       );
+
+      // Navigator.of(context).pushAndRemoveUntil(
+      //     MaterialPageRoute(builder: (context) => MainPage()),
+      //     (Route<dynamic> route) => false);
     } else {
       _showMsg(body['message']);
     }

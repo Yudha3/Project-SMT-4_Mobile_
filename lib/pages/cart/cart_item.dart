@@ -4,17 +4,17 @@ import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:main/API/api_services.dart';
 import 'package:main/models/cart.dart';
+import 'package:main/pages/cart/cart_page.dart';
 import 'package:main/pages/login_page.dart';
 import 'package:main/pages/product/detail_product_page.dart';
 import 'package:main/utils/colors.dart';
 import 'package:main/widgets/big_text.dart';
 import 'package:main/widgets/product_text.dart';
+import 'package:main/widgets/small_text.dart';
 
-class CartItem extends StatelessWidget {
+class CartItem extends StatefulWidget {
   Cart cart;
   var id, product_id, title, images, price, qty, subtotal;
-
-  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   CartItem(
       {Key? key,
@@ -27,6 +27,13 @@ class CartItem extends StatelessWidget {
       this.subtotal,
       this.images})
       : super(key: key);
+
+  @override
+  State<CartItem> createState() => _CartItemState();
+}
+
+class _CartItemState extends State<CartItem> {
+  final _scaffoldKey = GlobalKey<ScaffoldState>();
 
   @override
   Widget build(BuildContext context) {
@@ -58,7 +65,8 @@ class CartItem extends StatelessWidget {
           Navigator.push(
               context,
               MaterialPageRoute(
-                  builder: (context) => DetailProductPage(id: product_id)));
+                  builder: (context) =>
+                      DetailProductPage(id: widget.product_id)));
         },
         child: Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -72,7 +80,7 @@ class CartItem extends StatelessWidget {
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       image: DecorationImage(
-                          image: NetworkImage(images
+                          image: NetworkImage(widget.images
                               // "https://thumbs.dreamstime.com/b/flat-isolated-vector-eps-illustration-icon-minimal-design-long-shadow-error-file-not-found-web-118526724.jpg"
                               ),
                           fit: BoxFit.cover)),
@@ -87,13 +95,13 @@ class CartItem extends StatelessWidget {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       BigText(
-                        text: '$title',
+                        text: '${widget.title}',
                         size: 12.5,
                         weight: FontWeight.w500,
                         color: black,
                       ),
                       BigText(
-                        text: CurrencyFormat.convertToIdr(price),
+                        text: CurrencyFormat.convertToIdr(widget.price),
                         size: 12.5,
                         weight: FontWeight.w600,
                         color: primaryColor,
@@ -102,7 +110,7 @@ class CartItem extends StatelessWidget {
                         height: 4,
                       ),
                       BigText(
-                        text: "Jumlah: $qty",
+                        text: "Jumlah: ${widget.qty}",
                         size: 12.5,
                         weight: FontWeight.w500,
                         color: black,
@@ -134,7 +142,7 @@ class CartItem extends StatelessWidget {
                     height: 20,
                   ),
                   BigText(
-                    text: CurrencyFormat.convertToIdr(subtotal),
+                    text: CurrencyFormat.convertToIdr(widget.subtotal),
                     size: 13,
                     weight: FontWeight.w600,
                     color: primaryColor,
@@ -149,9 +157,36 @@ class CartItem extends StatelessWidget {
   }
 
   void deleteCart() async {
-    var res = await ApiService().getDataProduct(id);
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 135,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      backgroundColor: gray,
+                      color: primaryColor,
+                      strokeWidth: 6,
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    SmallText(
+                      text: "Loading...",
+                      size: 14,
+                    )
+                  ]),
+            ),
+          );
+        });
+    var res = await ApiService().getDataProduct(widget.id);
     var body = json.decode(res.body);
     String message = body['message'];
+
     if (message == "SUCCESS") {
       // _showMsg("Berhasil hapus");
       Fluttertoast.showToast(msg: 'anjay');
@@ -163,17 +198,56 @@ class CartItem extends StatelessWidget {
   confirmDelete(BuildContext context) {
     // set up the buttons
     Widget cancelButton = FlatButton(
-      child: Text("Cancel"),
+      child: SmallText(
+        text: "Batal",
+        color: grey40,
+        size: 13.5,
+        weight: FontWeight.w500,
+      ),
+      // color: Color(0xFFD9D9D9),
       onPressed: () {
         Navigator.of(context).pop();
       },
     );
     Widget continueButton = FlatButton(
-      child: Text("Continue"),
+      child: SmallText(
+        text: "Hapus",
+        color: Colors.red,
+        size: 13.5,
+        weight: FontWeight.w500,
+      ),
       onPressed: () async {
-        var res = await ApiService().deleteCart(id);
+        Navigator.of(context).pop(true);
+        showDialog(
+            context: context,
+            builder: (context) {
+              return AlertDialog(
+                content: Container(
+                  height: 135,
+                  child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(
+                          backgroundColor: gray,
+                          color: primaryColor,
+                          strokeWidth: 6,
+                        ),
+                        SizedBox(
+                          height: 5,
+                        ),
+                        SmallText(
+                          text: "Loading...",
+                          size: 14,
+                        )
+                      ]),
+                ),
+              );
+            });
+        var res = await ApiService().deleteCart(widget.id);
         var body = json.decode(res.body);
         String message = body['message'];
+        Navigator.of(context).pop(false);
         if (message == "SUCCESS") {
           // _showMsg("Berhasil hapus");
           Fluttertoast.showToast(
@@ -183,7 +257,14 @@ class CartItem extends StatelessWidget {
           Fluttertoast.showToast(msg: 'Gagal menghapus item\ndari keranjang!');
         }
         ApiService().getUserCarts();
-        Navigator.of(context).pop();
+        ApiService().getUserData();
+        // Navigator
+        // Navigator.popUntil(context, (Route<dynamic> route) => false);
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => CartPage(),
+            )).then((value) => ApiService().getUserData());
         // await ApiService().getUserCarts();
       },
     );

@@ -5,6 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:main/API/api_services.dart';
 import 'package:main/models/cart.dart';
 import 'package:main/pages/orders/order_list_item.dart';
+import 'package:main/pages/orders/payment_page.dart';
 import 'package:main/utils/textstyle.dart';
 import 'package:main/widgets/big_text.dart';
 import 'package:main/utils/colors.dart';
@@ -23,6 +24,7 @@ class OrderPage extends StatefulWidget {
 
 class _OrderPageState extends State<OrderPage> {
   bool _isLoading = true;
+  bool _isShipment = false;
   List<Cart> carts = [];
   final _formKey = GlobalKey<FormState>();
   final _formKey2 = GlobalKey<FormState>();
@@ -591,16 +593,22 @@ class _OrderPageState extends State<OrderPage> {
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(16),
                         )),
-                    onPressed: () {
+                    onPressed: () async {
                       if (_formKey.currentState!.validate()) {
                         _formKey.currentState!.save();
                         // _showMsg(recipient);
                         // cekOngkir();
-                        order();
+                        if (shipping == 0) {
+                          // showMsg(
+                          //     "Hitung Ongkos Kirim terlebih dahulu sebelum melakukan pemesanan!");
+                          showOngkirError();
+                        } else {
+                          order();
+                        }
                       }
                     },
                     child: BigText(
-                      text: "Pesan",
+                      text: "Buat Pesanan",
                       size: 16,
                       color: white,
                     )),
@@ -611,9 +619,32 @@ class _OrderPageState extends State<OrderPage> {
   }
 
   void cekOngkir() async {
-    setState(() {
-      _isLoading = true;
-    });
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 135,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      backgroundColor: gray,
+                      color: primaryColor,
+                      strokeWidth: 6,
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    SmallText(
+                      text: "Loading...",
+                      size: 14,
+                    )
+                  ]),
+            ),
+          );
+        });
     var data = {"destination": codepost, "weight": '1000'};
     var res = await ApiService().cekOngkir(data);
     var body = jsonDecode(res.body);
@@ -623,19 +654,61 @@ class _OrderPageState extends State<OrderPage> {
       shipping = cost;
       estimasi = est;
       total = shipping + subtotal;
-      _isLoading = false;
+      // _isLoading = false;
     });
+    Navigator.of(context).pop(false);
+
+    // setState(() {
+    //   _isLoading = true;
+    // // });
+    // var data = {"destination": codepost, "weight": '1000'};
+    // var res = await ApiService().cekOngkir(data);
+    // var body = jsonDecode(res.body);
+    // var cost = body['cost'];
+    // var est = body['estimasi'];
+    // setState(() {
+    //   shipping = cost;
+    //   estimasi = est;
+    //   total = shipping + subtotal;
+    //   // _isLoading = false;
+    // });
     // _showMsg(cost.toString());
   }
 
   void order() async {
-    setState(() {
-      _isLoading = true;
-    });
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 135,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      backgroundColor: gray,
+                      color: primaryColor,
+                      strokeWidth: 6,
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    SmallText(
+                      text: "Loading...",
+                      size: 14,
+                    )
+                  ]),
+            ),
+          );
+        });
+    // setState(() {
+    //   _isLoading = true;
+    // });
     var data = {
       'id_user': "$user_id",
       'recipient': "$recipient",
-      'address': "$address - Kode Pos: $codepost",
+      'address': "$address (Kode Pos $codepost)",
       'phone': '$phone',
       'subtotal': "$subtotal",
       'shipment': "$shipping",
@@ -646,41 +719,75 @@ class _OrderPageState extends State<OrderPage> {
     var res = await ApiService().createOrder(data);
     var body = jsonDecode(res.body);
     var message = body['message'];
+    Navigator.of(context).pop(false);
     if (message == "SUCCESS") {
-      setState(() {
-        _isLoading = false;
-      });
+      // setState(() {
+      //   _isLoading = false;
+      // });
       Fluttertoast.showToast(msg: "Order berhasil...");
       await ApiService().getUserCarts();
+      // Navigator.pushReplacement(
+      //     context,
+      //     MaterialPageRoute(
+      //         builder: (context) => OrderFinalPage(shipment: total)));
       Navigator.pushReplacement(
           context,
           MaterialPageRoute(
-              builder: (context) => OrderFinalPage(shipment: total)));
+              builder: (context) => PaymentPage(
+                    total: total,
+                  )));
     } else {
-      setState(() {
-        _isLoading = false;
-      });
+      // setState(() {
+      //   _isLoading = false;
+      // });
       _showMsg("Terjadi kesalahan saat melakukan order...");
     }
   }
-}
 
-class OrderFinalPage extends StatefulWidget {
-  var shipment;
-  OrderFinalPage({Key? key, required this.shipment}) : super(key: key);
-
-  @override
-  State<OrderFinalPage> createState() => _OrderFinalPageState();
-}
-
-class _OrderFinalPageState extends State<OrderFinalPage> {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-          child: BigText(
-        text: CurrencyFormat.convertToIdr(widget.shipment),
-      )),
-    );
+  void showOngkirError() {
+    // Widget okBtn = FlatButton(onPressed: (onPressed), child: child)
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 170,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Image.asset(
+                      'assets/images/shipment_not_found.png',
+                      width: 56,
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    SmallText(
+                      text: "Belum menghitung Ongkos Kirim",
+                      size: 15,
+                    ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    InkWell(
+                        onTap: () {
+                          Navigator.of(context).pop(false);
+                        },
+                        child: Container(
+                          width: double.maxFinite,
+                          height: 45,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: primaryColor,
+                          ),
+                          child: Center(
+                              child:
+                                  BigText(text: "OK", color: white, size: 14)),
+                        )),
+                  ]),
+            ),
+          );
+        });
   }
 }

@@ -1,19 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:main/pages/main_page.dart';
-import 'package:main/pages/orders/order_page.dart';
-import 'package:main/pages/payment_page.dart';
-import 'package:main/pages/profile/change_password.dart';
-import 'package:main/pages/profile/confirm_password_page.dart';
-import 'package:main/pages/profile/edit_photo.dart';
-import 'package:main/pages/profile/edit_profile.dart';
-import 'package:main/pages/register_page.dart';
-import 'package:main/pages/review_page.dart';
+import 'package:main/pages/orders/payment_page.dart';
 import 'package:main/pages/splashscreen.dart';
+import 'package:main/pages/try.dart';
 import 'package:main/pages/welcome_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 void main() {
-  runApp(MyApp());
+  // runApp(MyApp());
+  runApp(MaterialApp(
+    theme: ThemeData(visualDensity: VisualDensity.adaptivePlatformDensity),
+    themeMode: ThemeMode.system,
+    home: SplashScreen(),
+    debugShowCheckedModeBanner: false,
+  ));
 }
 
 class MyApp extends StatelessWidget {
@@ -38,7 +38,7 @@ class MyApp extends StatelessWidget {
         //   primarySwatch: Colors.blue,
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: EditPhotoPage(),
+      home: SplashScreen(),
     );
   }
 }

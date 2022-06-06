@@ -81,7 +81,7 @@ class WelcomePage extends StatelessWidget {
                     ],
                   ),
                   onPressed: () {
-                    Navigator.push(
+                    Navigator.pushReplacement(
                       context,
                       // DetailPage adalah halaman yang dituju
                       MaterialPageRoute(builder: (context) => LoginPage()),
