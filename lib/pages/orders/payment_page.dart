@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:main/pages/orders/my_order_page.dart';
-import 'package:main/pages/orders/upload_payment.dart';
-import 'package:main/widgets/big_text.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/widgets/long_text_widget.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/pages/orders/my_order_page.dart';
+import 'package:bumdeskm/pages/orders/upload_payment.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/widgets/long_text_widget.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 
 class PaymentPage extends StatefulWidget {
   var total;

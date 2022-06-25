@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.14)
-project(main LANGUAGES CXX)
+project(bumdeskm LANGUAGES CXX)
 
-set(BINARY_NAME "main")
+set(BINARY_NAME "bumdeskm")
 
 cmake_policy(SET CMP0063 NEW)
 

@@ -1,8 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:main/models/review.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/widgets/long_text_widget.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/API/api_services.dart';
+import 'package:bumdeskm/models/review.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/widgets/long_text_widget.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 
 class ReviewItem extends StatelessWidget {
   Review review;
@@ -40,7 +41,8 @@ class ReviewItem extends StatelessWidget {
                   CircleAvatar(
                     radius: 13,
                     child: CircleAvatar(
-                      backgroundImage: NetworkImage("${review.image}"),
+                      backgroundImage:
+                          NetworkImage(ApiService().imgURL + "${review.image}"),
                       radius: 11.5,
                     ),
                   ),

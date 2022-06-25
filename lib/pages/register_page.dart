@@ -2,13 +2,15 @@ import 'dart:convert';
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:main/API/api_services.dart';
-import 'package:main/pages/home/home_page.dart';
-import 'package:main/pages/login_page.dart';
-import 'package:main/pages/main_page.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/utils/textstyle.dart';
-import 'package:main/widgets/big_text.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:bumdeskm/API/api_services.dart';
+import 'package:bumdeskm/pages/home/home_page.dart';
+import 'package:bumdeskm/pages/login_page.dart';
+import 'package:bumdeskm/pages/main_page.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/utils/textstyle.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class RegisterPage extends StatefulWidget {
@@ -239,8 +241,6 @@ class _RegisterPageState extends State<RegisterPage> {
                           validator: (value) {
                             if (value!.isEmpty) {
                               return 'Masukkan kembali password yang dibuat!';
-                            } else if (value.length < 8) {
-                              return 'Minimal 8 karakter!';
                             }
                             return null;
                           },
@@ -347,9 +347,29 @@ class _RegisterPageState extends State<RegisterPage> {
   }
 
   void _register() async {
-    setState(() {
-      _isLoading = true;
-    });
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 138,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(
+                      backgroundColor: Colors.white70,
+                      color: Colors.indigo,
+                      strokeWidth: 6,
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    SmallText(text: "Loading...", size: 13.6),
+                  ]),
+            ),
+          );
+        });
     var data = {
       'name': name,
       'email': email,
@@ -370,22 +390,73 @@ class _RegisterPageState extends State<RegisterPage> {
       localStorage.setString('user', json.encode(body['user']));
       localStorage.setString('id_user', json.encode(body['user']['id']));
       localStorage.setInt('id_user', id);
+      Fluttertoast.showToast(msg: "Registrasi berhasil...");
+      Navigator.pop(context);
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => MainPage()),
+        MaterialPageRoute(builder: (context) => HomePage()),
       );
     } else {
-      if (body['message']['name'] != null) {
-        _showMsg(body['message']['name'][0].toString());
+      if (body['message']['username'] != null) {
+        Navigator.pop(context);
+        _showErrorDialog("Username telah digunakan! Coba yang lainnya");
       } else if (body['message']['email'] != null) {
-        _showMsg(body['message']['email'][0].toString());
-      } else if (body['message']['password'] != null) {
-        _showMsg(body['message']['password'][0].toString());
+        Navigator.pop(context);
+        _showErrorDialog("Email telah terdaftar! Coba yang lainnya");
+      } else if (body['message']['phone'] != null) {
+        Navigator.pop(context);
+        _showErrorDialog("Nomor Telepon telah terdaftar! Coba yang lainnya");
       }
     }
+  }
 
-    setState(() {
-      _isLoading = false;
-    });
+  _showErrorDialog(var msg) {
+    showDialog(
+        context: context,
+        builder: (context) {
+          return AlertDialog(
+            content: Container(
+              height: 170,
+              child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    SizedBox(
+                      height: 4,
+                    ),
+                    Image.asset(
+                      'assets/images/error.png',
+                      width: 56,
+                    ),
+                    SizedBox(
+                      height: 5,
+                    ),
+                    SmallText(
+                      align: TextAlign.center,
+                      text: "$msg",
+                      size: 15,
+                    ),
+                    SizedBox(
+                      height: 12,
+                    ),
+                    InkWell(
+                        onTap: () {
+                          Navigator.of(context).pop(true);
+                        },
+                        child: Container(
+                          width: double.maxFinite,
+                          height: 45,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            color: primaryColor,
+                          ),
+                          child: Center(
+                              child:
+                                  BigText(text: "OK", color: white, size: 14)),
+                        )),
+                  ]),
+            ),
+          );
+        });
   }
 }

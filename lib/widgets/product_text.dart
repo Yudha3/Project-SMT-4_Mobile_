@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:main/utils/colors.dart';
+import 'package:bumdeskm/utils/colors.dart';
 import 'package:intl/intl.dart';
 
 class ProductText extends StatelessWidget {
@@ -40,16 +40,5 @@ class ProductText extends StatelessWidget {
         height: height,
       ),
     );
-  }
-}
-
-class CurrencyFormat {
-  static String convertToIdr(dynamic number) {
-    NumberFormat currencyFormatter = NumberFormat.currency(
-      locale: 'id',
-      symbol: 'Rp ',
-      decimalDigits: 0,
-    );
-    return currencyFormatter.format(number);
   }
 }

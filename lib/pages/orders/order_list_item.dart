@@ -1,11 +1,14 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
-import 'package:main/models/order.dart';
-import 'package:main/pages/orders/detail_order_page.dart';
-import 'package:main/pages/product/detail_product_page.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/widgets/big_text.dart';
-import 'package:main/widgets/product_text.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/API/api_services.dart';
+import 'package:bumdeskm/models/order.dart';
+import 'package:bumdeskm/pages/orders/detail_order_page.dart';
+import 'package:bumdeskm/pages/product/detail_product_page.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/widgets/long_text_widget.dart';
+import 'package:bumdeskm/widgets/product_text.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 
 class OrderListItem extends StatelessWidget {
   Order order;
@@ -52,7 +55,19 @@ class OrderListItem extends StatelessWidget {
               weight: FontWeight.w500,
             ),
             ProductText(
-              text: '$status',
+              text: status == "PENDING"
+                  ? 'Menunggu Pembayaran'
+                  : status == "ON_PROCESS"
+                      ? 'Diproses'
+                      : status == "ON_DELIVERY"
+                          ? 'Dikirim'
+                          : status == "SUCCESS"
+                              ? 'Selesai'
+                              : status == "CANCEL"
+                                  ? 'Dibatalkan'
+                                  : status == 'WAITING'
+                                      ? 'Menunggu Konfirmasi'
+                                      : '-',
               size: 12,
               weight: FontWeight.w500,
               color: primaryColor,
@@ -70,13 +85,17 @@ class OrderListItem extends StatelessWidget {
               width: 60,
               height: 60,
               decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(5),
-                  image: DecorationImage(
-                      image: NetworkImage(
-                        image ??
-                            "https://thumbs.dreamstime.com/b/flat-isolated-vector-eps-illustration-icon-minimal-design-long-shadow-error-file-not-found-web-118526724.jpg",
-                      ),
-                      fit: BoxFit.cover)),
+                color: gray,
+                borderRadius: BorderRadius.circular(5),
+                // image: CachedNetworkImage(imageUrl: ApiService().imgURL + image,),
+                image: DecorationImage(
+                    image: NetworkImage(ApiService().imgURL + image),
+                    fit: BoxFit.cover),
+              ),
+              // child: CachedNetworkImage(
+              //   imageUrl: ApiService().imgURL + image,
+              //   fit: BoxFit.cover,
+              // ),
             ),
             SizedBox(
               width: 12,
@@ -183,8 +202,7 @@ class OrderProductItem extends StatelessWidget {
                 borderRadius: BorderRadius.circular(4),
                 image: DecorationImage(
                     image: NetworkImage(
-                      image ??
-                          "https://thumbs.dreamstime.com/b/flat-isolated-vector-eps-illustration-icon-minimal-design-long-shadow-error-file-not-found-web-118526724.jpg",
+                      ApiService().imgURL + image,
                     ),
                     fit: BoxFit.cover)),
           ),

@@ -89,13 +89,13 @@ BEGIN
     BEGIN
         BLOCK "040904e4"
         BEGIN
-            VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "main" "\0"
+            VALUE "CompanyName", "com.ws-tif" "\0"
+            VALUE "FileDescription", "bumdeskm" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "main" "\0"
-            VALUE "LegalCopyright", "Copyright (C) 2022 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "main.exe" "\0"
-            VALUE "ProductName", "main" "\0"
+            VALUE "InternalName", "bumdeskm" "\0"
+            VALUE "LegalCopyright", "Copyright (C) 2022 com.ws-tif. All rights reserved." "\0"
+            VALUE "OriginalFilename", "bumdeskm.exe" "\0"
+            VALUE "ProductName", "bumdeskm" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

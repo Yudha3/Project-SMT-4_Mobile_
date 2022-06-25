@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:main/models/app_banner.dart';
-import 'package:main/pages/product/catalog_page.dart';
-import 'package:main/pages/home/home_page.dart';
-import 'package:main/pages/orders/my_order_page.dart';
-import 'package:main/pages/profile/profile_page.dart';
-import 'package:main/pages/wishlist/wishlist_page.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/widgets/big_text.dart';
+import 'package:bumdeskm/models/app_banner.dart';
+import 'package:bumdeskm/pages/product/catalog_page.dart';
+import 'package:bumdeskm/pages/home/home_page.dart';
+import 'package:bumdeskm/pages/orders/my_order_page.dart';
+import 'package:bumdeskm/pages/profile/profile_page.dart';
+import 'package:bumdeskm/pages/wishlist/wishlist_page.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
 // import 'package:font_awesome_flutter/font_awesome_flutter.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class MainPage extends StatefulWidget {

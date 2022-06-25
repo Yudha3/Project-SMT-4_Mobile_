@@ -2,15 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:main/API/api_services.dart';
-import 'package:main/models/cart.dart';
-import 'package:main/pages/cart/cart_page.dart';
-import 'package:main/pages/login_page.dart';
-import 'package:main/pages/product/detail_product_page.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/widgets/big_text.dart';
-import 'package:main/widgets/product_text.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/API/api_services.dart';
+import 'package:bumdeskm/models/cart.dart';
+import 'package:bumdeskm/pages/cart/cart_page.dart';
+import 'package:bumdeskm/pages/login_page.dart';
+import 'package:bumdeskm/pages/product/detail_product_page.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/widgets/long_text_widget.dart';
+import 'package:bumdeskm/widgets/product_text.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 
 class CartItem extends StatefulWidget {
   Cart cart;
@@ -46,7 +47,7 @@ class _CartItemState extends State<CartItem> {
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
     }
 
-    return Container(
+    return new Container(
       width: double.maxFinite,
       height: 100,
       margin: EdgeInsets.symmetric(vertical: 6),
@@ -59,8 +60,8 @@ class _CartItemState extends State<CartItem> {
         //       color: Color(0xFF818181), offset: Offset(0, 3), blurRadius: 5)
         // ],
       ),
-      padding: EdgeInsets.only(left: 14, top: 10, bottom: 10, right: 14),
-      child: InkWell(
+      padding: const EdgeInsets.only(left: 14, top: 10, bottom: 10, right: 14),
+      child: new InkWell(
         onTap: () {
           Navigator.push(
               context,
@@ -68,7 +69,7 @@ class _CartItemState extends State<CartItem> {
                   builder: (context) =>
                       DetailProductPage(id: widget.product_id)));
         },
-        child: Row(
+        child: new Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -80,7 +81,8 @@ class _CartItemState extends State<CartItem> {
                   decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(5),
                       image: DecorationImage(
-                          image: NetworkImage(widget.images
+                          image: NetworkImage(
+                              ApiService().imgURL + "${widget.images}"
                               // "https://thumbs.dreamstime.com/b/flat-isolated-vector-eps-illustration-icon-minimal-design-long-shadow-error-file-not-found-web-118526724.jpg"
                               ),
                           fit: BoxFit.cover)),
@@ -340,7 +342,7 @@ class CartItemOrder extends StatelessWidget {
                 decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(5),
                     image: DecorationImage(
-                        image: NetworkImage(images
+                        image: NetworkImage(ApiService().imgURL + "$images"
                             // "https://thumbs.dreamstime.com/b/flat-isolated-vector-eps-illustration-icon-minimal-design-long-shadow-error-file-not-found-web-118526724.jpg"
                             ),
                         fit: BoxFit.cover)),

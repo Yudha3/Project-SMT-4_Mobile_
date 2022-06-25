@@ -2,15 +2,16 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:main/API/api_services.dart';
-import 'package:main/models/cart.dart';
-import 'package:main/pages/orders/order_list_item.dart';
-import 'package:main/pages/orders/payment_page.dart';
-import 'package:main/utils/textstyle.dart';
-import 'package:main/widgets/big_text.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/widgets/product_text.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/API/api_services.dart';
+import 'package:bumdeskm/models/cart.dart';
+import 'package:bumdeskm/pages/orders/order_list_item.dart';
+import 'package:bumdeskm/pages/orders/payment_page.dart';
+import 'package:bumdeskm/utils/textstyle.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/widgets/long_text_widget.dart';
+import 'package:bumdeskm/widgets/product_text.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 enum Delivery { reguler, express }
@@ -65,7 +66,7 @@ class _OrderPageState extends State<OrderPage> {
       _isLoading = true;
       user_id = prefs.getInt('id_user');
       subtotal = prefs.getInt('subtotal');
-      weight = prefs.getInt('weight');
+      weight = prefs.getInt('weight') ?? 0;
       total = subtotal + shipping;
       _isLoading = false;
     });
@@ -714,7 +715,7 @@ class _OrderPageState extends State<OrderPage> {
       'shipment': "$shipping",
       'total': "$total",
       'resi': '-',
-      'status': 'Menunggu Pembayaran',
+      'status': 'PENDING',
     };
     var res = await ApiService().createOrder(data);
     var body = jsonDecode(res.body);

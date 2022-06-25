@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:main/widgets/big_text.dart';
-import 'package:main/utils/colors.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/utils/colors.dart';
 
 class WishlistPage extends StatefulWidget {
   const WishlistPage({Key? key}) : super(key: key);

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:main/pages/login_page.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/utils/textstyle.dart';
-import 'package:main/widgets/big_text.dart';
+import 'package:bumdeskm/pages/login_page.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/utils/textstyle.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
 
 class WelcomePage extends StatelessWidget {
   const WelcomePage({Key? key}) : super(key: key);

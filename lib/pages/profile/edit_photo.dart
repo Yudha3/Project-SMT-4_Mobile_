@@ -2,14 +2,14 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:main/API/api_services.dart';
-import 'package:main/pages/profile/profile_page.dart';
-import 'package:main/widgets/big_text.dart';
-import 'package:main/utils/colors.dart';
+import 'package:bumdeskm/API/api_services.dart';
+import 'package:bumdeskm/pages/profile/profile_page.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/utils/colors.dart';
 
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 
 class EditPhotoPage extends StatefulWidget {
   int id;
@@ -57,13 +57,14 @@ class _EditPhotoPageState extends State<EditPhotoPage> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             Container(
-                width: MediaQuery.of(context).size.width / 2,
-                height: MediaQuery.of(context).size.width / 2,
+                width: MediaQuery.of(context).size.width / 1.8,
+                height: MediaQuery.of(context).size.width / 1.8,
                 margin: EdgeInsets.only(left: 18, right: 18, top: 24),
                 padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.width / 2.85,
-                    left: MediaQuery.of(context).size.width / 3.15),
+                    top: MediaQuery.of(context).size.width / 2.4,
+                    left: MediaQuery.of(context).size.width / 3.0),
                 decoration: BoxDecoration(
+                  color: white,
                   border: Border.all(width: 2.5, color: primaryColor),
                   borderRadius: BorderRadius.circular(
                       MediaQuery.of(context).size.width / 3),
@@ -74,11 +75,13 @@ class _EditPhotoPageState extends State<EditPhotoPage> {
                 child: Column(
                   children: [
                     CircleAvatar(
+                      radius: MediaQuery.of(context).size.width / 16,
                       backgroundColor: primaryColor,
                       child: InkWell(
                         child: Icon(
                           Icons.camera_alt_rounded,
                           color: white,
+                          size: MediaQuery.of(context).size.width / 15,
                         ),
                         onTap: _pickImage,
                       ),
@@ -99,13 +102,14 @@ class _EditPhotoPageState extends State<EditPhotoPage> {
           crossAxisAlignment: CrossAxisAlignment.center,
           children: [
             Container(
-                width: MediaQuery.of(context).size.width / 2,
-                height: MediaQuery.of(context).size.width / 2,
+                width: MediaQuery.of(context).size.width / 1.8,
+                height: MediaQuery.of(context).size.width / 1.8,
                 margin: EdgeInsets.only(left: 18, right: 18, top: 24),
                 padding: EdgeInsets.only(
-                    top: MediaQuery.of(context).size.width / 2.85,
-                    left: MediaQuery.of(context).size.width / 3.15),
+                    top: MediaQuery.of(context).size.width / 2.4,
+                    left: MediaQuery.of(context).size.width / 3.0),
                 decoration: BoxDecoration(
+                  color: Colors.red,
                   border: Border.all(width: 2.5, color: primaryColor),
                   borderRadius: BorderRadius.circular(
                       MediaQuery.of(context).size.width / 3),
@@ -115,11 +119,13 @@ class _EditPhotoPageState extends State<EditPhotoPage> {
                 child: Column(
                   children: [
                     CircleAvatar(
+                      radius: MediaQuery.of(context).size.width / 16,
                       backgroundColor: primaryColor,
                       child: InkWell(
                         child: Icon(
                           Icons.camera_alt_rounded,
                           color: white,
+                          size: MediaQuery.of(context).size.width / 15,
                         ),
                         onTap: _pickImage,
                       ),
@@ -233,7 +239,7 @@ class _EditPhotoPageState extends State<EditPhotoPage> {
       });
     } else {
       // print('Retrieve error ' + response.exception.code);
-      _showMsgError('Terjadi kesalahan : ' + response.exception.code);
+      _showMsgError('Terjadi kesalahan');
 
       // ScaffoldMessenger.of(context)
       //     .showSnackBar(SnackBar(content: Text(response.exception.code)));
@@ -308,7 +314,7 @@ class _EditPhotoPageState extends State<EditPhotoPage> {
                     ),
                     SmallText(
                       align: TextAlign.center,
-                      text: "Gagal ",
+                      text: "Gagal memperbarui foto Profil",
                       size: 15,
                     ),
                     SizedBox(
@@ -317,11 +323,11 @@ class _EditPhotoPageState extends State<EditPhotoPage> {
                     InkWell(
                         onTap: () {
                           Navigator.of(context).pop(true);
-                          Navigator.pushReplacement(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ProfilePage(),
-                              )).then((value) => ApiService().getUserData());
+                          // Navigator.pushReplacement(
+                          //     context,
+                          //     MaterialPageRoute(
+                          //       builder: (context) => ProfilePage(),
+                          //     )).then((value) => ApiService().getUserData());
                         },
                         child: Container(
                           width: double.maxFinite,
@@ -357,7 +363,7 @@ class _EditPhotoPageState extends State<EditPhotoPage> {
                       width: 56,
                     ),
                     SizedBox(
-                      height: 5,
+                      height: 12,
                     ),
                     SmallText(
                       align: TextAlign.center,

@@ -3,17 +3,18 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:main/API/api_services.dart';
-import 'package:main/models/order.dart';
-import 'package:main/pages/cart/cart_page.dart';
-import 'package:main/pages/orders/my_order_page.dart';
-import 'package:main/pages/orders/send_review.dart';
-import 'package:main/pages/orders/order_list_item.dart';
-import 'package:main/pages/orders/payment_page.dart';
-import 'package:main/widgets/big_text.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/widgets/product_text.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/API/api_services.dart';
+import 'package:bumdeskm/models/order.dart';
+import 'package:bumdeskm/pages/cart/cart_page.dart';
+import 'package:bumdeskm/pages/orders/my_order_page.dart';
+import 'package:bumdeskm/pages/orders/send_review.dart';
+import 'package:bumdeskm/pages/orders/order_list_item.dart';
+import 'package:bumdeskm/pages/orders/payment_page.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/widgets/long_text_widget.dart';
+import 'package:bumdeskm/widgets/product_text.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 
 class DetailOrderPage extends StatefulWidget {
   int id;
@@ -25,8 +26,16 @@ class DetailOrderPage extends StatefulWidget {
 
 class _DetailOrderPageState extends State<DetailOrderPage> {
   bool _isLoading = true;
-  static int id_trx = 0;
-  var date, status, recipient, address, phone, subtotal, shipment, total, resi;
+  int id_trx = 0;
+  var date = "0000-00-00 00:00:00";
+  var status = "...";
+  var recipient = "...";
+  var address = ".....";
+  var phone = "...";
+  var subtotal = 0;
+  var shipment = 0;
+  var total = 0;
+  var resi = "...";
   List<OrderItem> items = [];
 
   @override
@@ -46,7 +55,27 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
     setState(() {
       id_trx = widget.id;
       date = body['date'];
-      status = body['status'];
+      var a = body['status'];
+      switch (a) {
+        case ('PENDING'):
+          status = "Menunggu Pembayaran";
+          break;
+        case ('ON_PROCESS'):
+          status = "Diproses";
+          break;
+        case ('WAITING'):
+          status = "Menunggu Konfirmasi";
+          break;
+        case ('ON_DELIVERY'):
+          status = "Dikirim";
+          break;
+        case ('SUCCESS'):
+          status = "Selesai";
+          break;
+        default:
+          status = body['status'];
+          break;
+      }
       recipient = body['recipient'];
       address = body['address'];
       phone = body['phone'];
@@ -54,13 +83,14 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
       shipment = body['shipment'];
       total = body['total'];
       resi = body['resi'];
+      _isLoading = false;
     });
   }
 
   void getOrderItem() async {
+    items.clear();
     var res = await ApiService().getOrderItem(widget.id);
     setState(() {
-      _isLoading = true;
       items.addAll(res);
       _isLoading = false;
     });
@@ -71,44 +101,35 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
     return Scaffold(
         backgroundColor: bgWhite,
         body: SafeArea(
-          child: _isLoading
-              ? Center(
-                  child: CircularProgressIndicator(
-                    backgroundColor: grey,
-                    color: primaryColor,
-                    strokeWidth: 6,
-                  ),
-                )
-              : SingleChildScrollView(
-                  child: Column(
+          child: RefreshIndicator(
+            color: primaryColor,
+            onRefresh: () async {
+              setState(() {
+                _isLoading = true;
+              });
+              getOrderDetail();
+              getOrderItem();
+            },
+            child: _isLoading
+                ? ListView(
                     children: [
+                      myAppBar(),
                       Container(
-                        width: double.maxFinite,
-                        height: 60,
-                        color: white,
-                        padding: EdgeInsets.symmetric(horizontal: 6),
-                        margin: EdgeInsets.only(bottom: 0),
-                        child: Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              IconButton(
-                                onPressed: () {
-                                  Navigator.pop(context);
-                                },
-                                icon: Icon(
-                                  Icons.arrow_back_rounded,
-                                  size: 30,
-                                ),
-                                color: primaryColor,
-                              ),
-                              BigText(text: "Detail Pesanan"),
-                              Icon(
-                                Icons.close,
-                                size: 30,
-                                color: Colors.transparent,
-                              ),
-                            ]),
+                        height: MediaQuery.of(context).size.height - 60,
+                        width: MediaQuery.of(context).size.width,
+                        child: Center(
+                          child: CircularProgressIndicator(
+                            backgroundColor: gray,
+                            color: primaryColor,
+                            strokeWidth: 6,
+                          ),
+                        ),
                       ),
+                    ],
+                  )
+                : ListView(
+                    children: [
+                      myAppBar(),
                       // Container(
                       //   color: gray,
                       //   height: MediaQuery.of(context).size.height / 6,
@@ -118,7 +139,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                         width: MediaQuery.of(context).size.width,
                         padding:
                             EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                        margin: EdgeInsets.only(bottom: 10),
+                        margin: EdgeInsets.only(bottom: 12, top: 12),
                         child: Column(children: [
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -177,7 +198,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                         width: MediaQuery.of(context).size.width,
                         padding:
                             EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                        margin: EdgeInsets.only(bottom: 10),
+                        margin: EdgeInsets.only(bottom: 12),
                         child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
@@ -226,7 +247,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                         width: MediaQuery.of(context).size.width,
                         padding:
                             EdgeInsets.symmetric(horizontal: 18, vertical: 14),
-                        margin: EdgeInsets.only(bottom: 10),
+                        margin: EdgeInsets.only(bottom: 12),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
@@ -272,49 +293,6 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                           ],
                         ),
                       ),
-
-                      // Expanded(
-                      //     child: Container(
-                      //   child: Column(
-                      //     crossAxisAlignment: CrossAxisAlignment.start,
-                      //     children: [
-                      //       Container(
-                      //           width: MediaQuery.of(context).size.width,
-                      //           color: white,
-                      //           padding: EdgeInsets.only(
-                      //               left: 20, right: 20, top: 14, bottom: 6),
-                      //           child: BigText(
-                      //             text: "Pesanan",
-                      //             size: 15,
-                      //             weight: FontWeight.w500,
-                      //             color: primaryColor,
-                      //           )),
-                      //       Expanded(
-                      //         child: Container(
-                      //           color: white,
-                      //           child: ListView(
-                      //             scrollDirection: Axis.vertical,
-                      //             children: items
-                      //                 .map((item) => OrderProductItem(
-                      //                     title: item.title,
-                      //                     price: item.price,
-                      //                     qty: item.qty,
-                      //                     subtotal: item.subtotal,
-                      //                     image: item.image))
-                      //                 .toList(),
-                      //           ),
-                      //         ),
-                      //       ),
-                      //     ],
-                      //   ),
-                      // )),
-
-                      // Container(
-                      //   color: white,
-                      //   width: MediaQuery.of(context).size.width,
-                      //   padding: EdgeInsets.symmetric(horizontal: 18, vertical: 16),
-                      //   margin: EdgeInsets.only(bottom: 14),
-                      // ),
 
                       Container(
                         width: MediaQuery.of(context).size.width,
@@ -414,7 +392,7 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                               ),
                               SmallText(
                                 text: CurrencyFormat.convertToIdr(total),
-                                weight: FontWeight.w500,
+                                weight: FontWeight.w600,
                                 color: primaryColor,
                                 size: 14,
                               ),
@@ -424,315 +402,35 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                       ),
                     ],
                   ),
-                ),
-
-          //   child: Column(
-          // children: [
-          //   Container(
-          //     width: double.maxFinite,
-          //     height: 60,
-          //     color: white,
-          //     padding: EdgeInsets.symmetric(horizontal: 6),
-          //     child: Row(
-          //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //         children: [
-          //           IconButton(
-          //             onPressed: () {
-          //               Navigator.pop(context);
-          //             },
-          //             icon: Icon(
-          //               Icons.arrow_back_rounded,
-          //               size: 30,
-          //             ),
-          //             color: primaryColor,
-          //           ),
-          //           BigText(text: "Detail Pesanan"),
-          //           Icon(
-          //             Icons.close,
-          //             size: 30,
-          //             color: Colors.transparent,
-          //           ),
-          //         ]),
-          //   ),
-          //   Container(
-          //     color: white,
-          //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          //     child: Column(
-          // Row(
-          //   mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //   children: [
-          //     Text(
-          //       'Status Transaksi',
-          //       style: TextStyle(fontWeight: FontWeight.w500),
-          //     ),
-          //     Text(
-          //       'Menunggu Pembayaran',
-          //       style: TextStyle(
-          //           color: primaryColor, fontWeight: FontWeight.bold),
-          //     ),
-          //   ],
-          // ),
-          // Divider(
-          //   height: 20,
-          //   color: Colors.black87,
-          //   thickness: 2,
-          // ),
-          //         Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: [
-          //             Text(
-          //               'Nomor Transaksi',
-          //               style: TextStyle(fontWeight: FontWeight.w500),
-          //             ),
-          //             Text(
-          //               'TRK-2204022',
-          //               style: TextStyle(fontWeight: FontWeight.bold),
-          //             ),
-          //           ],
-          //         ),
-          //         Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: [
-          //             Text(
-          //               'Tanggal Transaksi',
-          //               style: TextStyle(fontWeight: FontWeight.w500),
-          //             ),
-          //             Text(
-          //               '2022-04-20 21:50:01',
-          //               style: TextStyle(fontWeight: FontWeight.bold),
-          //             ),
-          //           ],
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          //   SizedBox(height: 20),
-          //   Container(
-          //     width: 500,
-          //     color: white,
-          //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          //     child:
-          //         Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
-          //       Text(
-          //         'Alamat Penerima',
-          //         style:
-          //             TextStyle(color: primaryColor, fontWeight: FontWeight.bold),
-          //       ),
-          //       SizedBox(height: 10),
-          //       Text('Yoga'),
-          //       Text('Jombang'),
-          //       Text('082364777645'),
-          //     ]),
-          //   ),
-          //   SizedBox(height: 10),
-          //   Container(
-          //     color: white,
-          //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          //     child: Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         Text(
-          //           'Pesanan',
-          //           style: TextStyle(
-          //               color: primaryColor, fontWeight: FontWeight.bold),
-          //         ),
-          //         SizedBox(height: 10),
-          //         Expanded(
-          //             child: Container(
-          //           child: ListView(
-          //             scrollDirection: Axis.vertical,
-          //             children: items
-          //                 .map((item) => OrderProductItem(
-          //                     title: item.title,
-          //                     price: item.price,
-          //                     qty: item.qty,
-          //                     subtotal: item.subtotal,
-          //                     image: item.image))
-          //                 .toList(),
-          //           ),
-          //         )),
-          //         // Card(
-          //         //   borderOnForeground: true,
-          //         //   shape: RoundedRectangleBorder(
-          //         //       side: BorderSide(color: Colors.black),
-          //         //       borderRadius: BorderRadius.circular(10)),
-          //         //   child: Row(
-          //         //     children: [
-          //         //       Padding(padding: EdgeInsets.only(left: 10)),
-          //         //       Image.network(
-          //         //         'https://images.unsplash.com/photo-1585155770447-2f66e2a397b5?ixlib=rb-1.2.1&ixid=MnwxMjA3fDB8MHxzZWFyY2h8OHx8cHJvZHVjdHN8ZW58MHx8MHx8&auto=format&fit=crop&w=800&q=60',
-          //         //         width: 100,
-          //         //         height: 100,
-          //         //       ),
-          //         //       SizedBox(width: 10),
-          //         //       Column(
-          //         //         crossAxisAlignment: CrossAxisAlignment.start,
-          //         //         children: [
-          //         //           Text('Lorem ipsum sir amet'),
-          //         //           SizedBox(height: 5),
-          //         //           Text(
-          //         //             'Rp 59.000',
-          //         //             style: TextStyle(
-          //         //                 color: primaryColor,
-          //         //                 fontWeight: FontWeight.w500),
-          //         //           ),
-          //         //           SizedBox(height: 10),
-          //         //           Text('Qty : 1'),
-          //         //         ],
-          //         //       ),
-          //         //       Padding(padding: EdgeInsets.symmetric(horizontal: 15)),
-          //         //       Text(
-          //         //         'Rp 59.000',
-          //         //         style: TextStyle(
-          //         //             color: primaryColor, fontWeight: FontWeight.w500),
-          //         //       ),
-          //         //     ],
-          //         //   ),
-          //         // ),
-          //         SizedBox(height: 20),
-          //         Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: [
-          //             Text('Total Belanja',
-          //                 style: TextStyle(
-          //                   fontWeight: FontWeight.bold,
-          //                 )),
-          //             Text(
-          //               'Rp 59.000',
-          //               style: TextStyle(
-          //                   color: primaryColor, fontWeight: FontWeight.bold),
-          //             ),
-          //           ],
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          //   SizedBox(height: 20),
-          //   Container(
-          //     color: white,
-          //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          //     child: Column(
-          //       crossAxisAlignment: CrossAxisAlignment.start,
-          //       children: [
-          //         Text(
-          //           'Informasi Pengiriman',
-          //           style: TextStyle(
-          //               color: primaryColor, fontWeight: FontWeight.bold),
-          //         ),
-          //         SizedBox(height: 10),
-          //         Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: [
-          //             Text(
-          //               '...',
-          //               style: TextStyle(fontWeight: FontWeight.w500),
-          //             ),
-          //             Text(
-          //               '-',
-          //               style: TextStyle(fontWeight: FontWeight.bold),
-          //             ),
-          //           ],
-          //         ),
-          //         SizedBox(height: 10),
-          //         Row(
-          //           mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //           children: [
-          //             Text(
-          //               'Biaya Pengiriman',
-          //               style: TextStyle(fontWeight: FontWeight.w500),
-          //             ),
-          //             Text(
-          //               'Rp. 20.000',
-          //               style: TextStyle(
-          //                   color: primaryColor, fontWeight: FontWeight.bold),
-          //             ),
-          //           ],
-          //         ),
-          //       ],
-          //     ),
-          //   ),
-          //   SizedBox(height: 20),
-          //   Container(
-          //     color: white,
-          //     padding: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          //     child: Row(
-          //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-          //       children: [
-          //         Text(
-          //           'Total Transaksi',
-          //           style: TextStyle(fontWeight: FontWeight.w500),
-          //         ),
-          //         Text(
-          //           'Rp. 79.000',
-          //           style: TextStyle(
-          //               color: primaryColor, fontWeight: FontWeight.bold),
-          //         )
-          //       ],
-          //     ),
-          //   ),
-          //   SizedBox(height: 30),
-          //   Container(
-          //     margin: EdgeInsets.symmetric(horizontal: 20, vertical: 10),
-          //     color: white,
-          //     child: Column(
-          //       children: [
-          //         ElevatedButton(
-          //           onPressed: () {},
-          //           child: Text('Bayar'),
-          //           style: ElevatedButton.styleFrom(
-          //               minimumSize: Size(340, 50),
-          //               primary: primaryColor,
-          //               shape: RoundedRectangleBorder(
-          //                   borderRadius: BorderRadius.circular(20))),
-          //         )
-          //       ],
-          //     ),
-          //     ),
-          //   ],
-          // )
+          ),
         ),
-        bottomNavigationBar: status == "Menunggu Pembayaran"
+        bottomNavigationBar: _isLoading
             ? Container(
-                height: 54,
-                margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                child: ElevatedButton(
-                  onPressed: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => HowtoPayPage(
-                                  id: id_trx,
-                                  total: total,
-                                )));
-                  },
-                  child: BigText(
-                    text: 'Bayar',
-                    size: 15,
-                    color: white,
-                    weight: FontWeight.w500,
-                  ),
-                  style: ElevatedButton.styleFrom(
-                      minimumSize: Size(340, 56),
-                      primary: primaryColor,
-                      shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(12))),
-                ),
+                height: 0,
+                width: 0,
               )
-            : status == "Dikirim"
+            : status == "Menunggu Pembayaran"
                 ? Container(
-                    height: 54,
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+                    height: 68,
+                    width: MediaQuery.of(context).size.width,
+                    decoration: BoxDecoration(color: white, boxShadow: [
+                      BoxShadow(
+                          color: grey81, offset: Offset(0, 8), blurRadius: 12),
+                    ]),
+                    padding: EdgeInsets.only(
+                        left: 14, right: 14, bottom: 10, top: 8),
                     child: ElevatedButton(
                       onPressed: () {
-                        // Navigator.push(
-                        //     context,
-                        //     MaterialPageRoute(
-                        //         builder: (context) =>
-                        //             SendReviewPage(order_id: id_trx)));
-                        confirmDelete(context);
+                        Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                                builder: (context) => HowtoPayPage(
+                                      id: id_trx,
+                                      total: total,
+                                    )));
                       },
                       child: BigText(
-                        text: 'Konfirmasi',
+                        text: 'Bayar',
                         size: 15,
                         color: white,
                         weight: FontWeight.w500,
@@ -744,26 +442,68 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
                               borderRadius: BorderRadius.circular(12))),
                     ),
                   )
-                : Container(
-                    height: 54,
-                    margin: EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-                    child: ElevatedButton(
-                      onPressed: () {
-                        Navigator.of(context).pop(true);
-                      },
-                      child: BigText(
-                        text: 'Kembali',
-                        size: 15,
-                        color: white,
-                        weight: FontWeight.w500,
-                      ),
-                      style: ElevatedButton.styleFrom(
-                          minimumSize: Size(340, 56),
-                          primary: primaryColor,
-                          shape: RoundedRectangleBorder(
-                              borderRadius: BorderRadius.circular(12))),
-                    ),
-                  ));
+                : status == "Dikirim"
+                    ? Container(
+                        height: 68,
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(color: white, boxShadow: [
+                          BoxShadow(
+                              color: grey81,
+                              offset: Offset(0, 8),
+                              blurRadius: 12),
+                        ]),
+                        padding: EdgeInsets.only(
+                            left: 14, right: 14, bottom: 10, top: 8),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            // Navigator.push(
+                            //     context,
+                            //     MaterialPageRoute(
+                            //         builder: (context) =>
+                            //             SendReviewPage(order_id: id_trx)));
+                            confirmDelete(context);
+                          },
+                          child: BigText(
+                            text: 'Konfirmasi',
+                            size: 15,
+                            color: white,
+                            weight: FontWeight.w500,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                              minimumSize: Size(340, 56),
+                              primary: primaryColor,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12))),
+                        ),
+                      )
+                    : Container(
+                        height: 68,
+                        width: MediaQuery.of(context).size.width,
+                        decoration: BoxDecoration(color: white, boxShadow: [
+                          BoxShadow(
+                              color: grey81,
+                              offset: Offset(0, 8),
+                              blurRadius: 12),
+                        ]),
+                        padding: EdgeInsets.only(
+                            left: 14, right: 14, bottom: 10, top: 8),
+                        child: ElevatedButton(
+                          onPressed: () {
+                            Navigator.of(context).pop(true);
+                          },
+                          child: BigText(
+                            text: 'Kembali',
+                            size: 15,
+                            color: white,
+                            weight: FontWeight.w500,
+                          ),
+                          style: ElevatedButton.styleFrom(
+                              minimumSize: Size(340, 56),
+                              primary: primaryColor,
+                              shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(12))),
+                        ),
+                      ));
   }
 
   confirmDelete(BuildContext context) {
@@ -854,6 +594,41 @@ class _DetailOrderPageState extends State<DetailOrderPage> {
       builder: (BuildContext context) {
         return alert;
       },
+    );
+  }
+}
+
+class myAppBar extends StatelessWidget {
+  const myAppBar({
+    Key? key,
+  }) : super(key: key);
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      width: double.maxFinite,
+      height: 60,
+      color: white,
+      padding: EdgeInsets.symmetric(horizontal: 6),
+      margin: EdgeInsets.only(bottom: 0),
+      child: Row(mainAxisAlignment: MainAxisAlignment.spaceBetween, children: [
+        IconButton(
+          onPressed: () {
+            Navigator.pop(context);
+          },
+          icon: Icon(
+            Icons.arrow_back_rounded,
+            size: 30,
+          ),
+          color: primaryColor,
+        ),
+        BigText(text: "Detail Pesanan"),
+        Icon(
+          Icons.close,
+          size: 30,
+          color: Colors.transparent,
+        ),
+      ]),
     );
   }
 }

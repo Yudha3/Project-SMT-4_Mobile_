@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:main/utils/colors.dart';
+import 'package:bumdeskm/utils/colors.dart';
 
 class SmallText extends StatelessWidget {
   final Color? color;

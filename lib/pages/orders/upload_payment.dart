@@ -5,13 +5,13 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
-import 'package:main/API/api_services.dart';
-import 'package:main/pages/home/home_page.dart';
-import 'package:main/pages/main_page.dart';
-import 'package:main/pages/orders/detail_order_page.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/widgets/big_text.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/API/api_services.dart';
+import 'package:bumdeskm/pages/home/home_page.dart';
+import 'package:bumdeskm/pages/main_page.dart';
+import 'package:bumdeskm/pages/orders/detail_order_page.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 
 class UploadPayment extends StatefulWidget {
   var id_trasanction;
@@ -139,7 +139,7 @@ class _UploadPaymentState extends State<UploadPayment> {
       });
     } else {
       // print('Retrieve error ' + response.exception.code);
-      _showMsgError('Terjadi kesalahan : ' + response.exception.code);
+      _showMsgError('Terjadi kesalahan');
     }
   }
 
@@ -235,7 +235,7 @@ class _UploadPaymentState extends State<UploadPayment> {
     request.files.add(await http.MultipartFile.fromPath('payment', filepath));
     request.fields.addAll({
       "id_transaction": widget.id_trasanction.toString(),
-      "status": "UNKNOWN"
+      "status": "WAITING"
     });
     var res = await request.send();
     // var response = res.reasonPhrase;

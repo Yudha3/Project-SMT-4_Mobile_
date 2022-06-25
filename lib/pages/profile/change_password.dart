@@ -1,11 +1,11 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
-import 'package:main/API/api_services.dart';
-import 'package:main/widgets/big_text.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/utils/textstyle.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/API/api_services.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/utils/textstyle.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class ChangePasswordPage extends StatefulWidget {
@@ -81,7 +81,9 @@ class _ChangePasswordPageState extends State<ChangePasswordPage> {
                             ),
                           ]),
                     ),
-
+                    SizedBox(
+                      height: 24,
+                    ),
                     Container(
                       padding: EdgeInsets.symmetric(horizontal: 20),
                       child: Form(

@@ -1,13 +1,13 @@
 import 'dart:async';
 
 import 'package:flutter/material.dart';
-import 'package:main/pages/home/home_page.dart';
-import 'package:main/pages/login_page.dart';
-import 'package:main/pages/main_page.dart';
-import 'package:main/pages/welcome_page.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/widgets/big_text.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/pages/home/home_page.dart';
+import 'package:bumdeskm/pages/login_page.dart';
+import 'package:bumdeskm/pages/main_page.dart';
+import 'package:bumdeskm/pages/welcome_page.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashScreen extends StatefulWidget {

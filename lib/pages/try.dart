@@ -3,9 +3,9 @@ import 'dart:ui';
 
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
-import 'package:main/widgets/big_text.dart';
-import 'package:carousel_indicator/carousel_indicator.dart';
-import 'package:dots_indicator/dots_indicator.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+// import 'package:carousel_indicator/carousel_indicator.dart';
+// import 'package:dots_indicator/dots_indicator.dart';
 
 class Trial1 extends StatefulWidget {
   const Trial1({Key? key}) : super(key: key);
@@ -20,8 +20,8 @@ class _Trial1State extends State<Trial1> {
   var pageIndex = 0;
 
   getImages() async {
-    var res = await http
-        .get('http://192.168.1.2/coba_api/public/api/product/images/$id');
+    var res = await http.get(
+        Uri.parse('http://192.168.1.2/coba_api/public/api/product/images/$id'));
     var json = jsonDecode(res.body);
 
     for (var u in json) {
@@ -61,16 +61,6 @@ class _Trial1State extends State<Trial1> {
                 // );
                 return imageItem(pageIndex);
               }),
-        ),
-        new DotsIndicator(
-          dotsCount: images.length,
-          position: pageIndex.toDouble(),
-          decorator: DotsDecorator(
-            size: const Size.square(8.0),
-            activeSize: const Size(18.0, 9.0),
-            activeShape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(5.0)),
-          ),
         ),
       ],
     );

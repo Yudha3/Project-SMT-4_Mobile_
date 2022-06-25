@@ -5,15 +5,16 @@ import 'dart:convert';
 import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:main/API/api_services.dart';
-import 'package:main/models/cart.dart';
-import 'package:main/pages/cart/cart_item.dart';
-import 'package:main/pages/orders/order_page.dart';
-import 'package:main/pages/product/catalog_page.dart';
-import 'package:main/widgets/big_text.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/widgets/product_text.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/API/api_services.dart';
+import 'package:bumdeskm/models/cart.dart';
+import 'package:bumdeskm/pages/cart/cart_item.dart';
+import 'package:bumdeskm/pages/orders/order_page.dart';
+import 'package:bumdeskm/pages/product/catalog_page.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/widgets/long_text_widget.dart';
+import 'package:bumdeskm/widgets/product_text.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:http/http.dart' as http;
 
@@ -54,8 +55,9 @@ class _CartPageState extends State<CartPage> {
     ApiService().getUserData();
     SharedPreferences preferences = await SharedPreferences.getInstance();
     setState(() {
-      id_user = preferences.getInt('id_user');
-      subtotal = preferences.getInt('subtotal');
+      // id_user = preferences.getInt('id_user');
+      id_user = preferences.getInt('id_user') ?? 0;
+      subtotal = preferences.getInt('subtotal') ?? 0;
     });
     // print(id_user);
   }
@@ -113,6 +115,7 @@ class _CartPageState extends State<CartPage> {
             // getData();
             await fetchData();
           },
+          color: primaryColor,
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -232,146 +235,152 @@ class _CartPageState extends State<CartPage> {
           ),
         ),
       ),
-      bottomNavigationBar: carts.length == 0
+      bottomNavigationBar: _isLoading
           ? Container(
-              margin: EdgeInsets.only(left: 14, right: 14, top: 8, bottom: 12),
-              width: MediaQuery.of(context).size.width,
-              height: 56,
-              decoration: BoxDecoration(
-                  color: primaryLight,
-                  borderRadius: BorderRadius.circular(16),
-                  gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: [primaryColor, secondaryColor])),
-              child: TextButton(
-                style: TextButton.styleFrom(
-                    shadowColor: Color(0xFFd9d9d9),
-                    backgroundColor: Colors.transparent,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(16),
-                    )),
-                onPressed: () {
-                  Navigator.pushReplacement(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => CatalogPage(
-                              // id_user: id_user,
-                              )));
-                },
-                child: BigText(
-                  text: "Belanja Sekarang",
-                  color: white,
-                  size: 16,
-                ),
-              ),
+              height: 0,
+              width: 0,
             )
-          :
-
-          // Container(
-          //     margin: EdgeInsets.only(left: 16, bottom: 12, right: 16),
-          //     width: MediaQuery.of(context).size.width,
-          //     height: 56,
-          //     decoration: BoxDecoration(
-          //         color: primaryLight,
-          //         borderRadius: BorderRadius.circular(16),
-          //         gradient: LinearGradient(
-          //             begin: Alignment.topLeft,
-          //             end: Alignment.bottomRight,
-          //             colors: [primaryColor, secondaryColor])),
-          //     child: TextButton(
-          //       style: TextButton.styleFrom(
-          //           shadowColor: Color(0xFFd9d9d9),
-          //           backgroundColor: Colors.transparent,
-          //           shape: RoundedRectangleBorder(
-          //             borderRadius: BorderRadius.circular(16),
-          //           )),
-          //       onPressed: () {
-          //         if (subtotal == 0) {
-          //           initState();
-          //           Fluttertoast.showToast(msg: "Terjadi kesalahan!");
-          //         } else {
-          //           Navigator.push(
-          //               context,
-          //               MaterialPageRoute(
-          //                   builder: (context) => OrderPage(
-          //                       // id_user: id_user,
-          //                       )));
-          //         }
-          //       },
-          //       child: BigText(
-          //         text: "Order",
-          //         color: white,
-          //         size: 16,
-          //       ),
-          //     ),
-          //   )
-
-          Container(
-              padding:
-                  EdgeInsets.only(left: 24, top: 10, bottom: 10, right: 16),
-              color: white,
-              height: 72,
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  SizedBox(
-                    width: MediaQuery.of(context).size.width / 2.5,
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        SmallText(
-                          text: "Subtotal :",
-                          size: 14,
-                          weight: FontWeight.w500,
-                        ),
-                        SmallText(
-                          text: CurrencyFormat.convertToIdr(subtotal),
-                          size: 16,
-                          weight: FontWeight.w600,
-                          color: primaryColor,
-                        ),
-                      ],
+          : carts.length == 0
+              ? Container(
+                  margin:
+                      EdgeInsets.only(left: 14, right: 14, top: 8, bottom: 12),
+                  width: MediaQuery.of(context).size.width,
+                  height: 56,
+                  decoration: BoxDecoration(
+                      color: primaryLight,
+                      borderRadius: BorderRadius.circular(16),
+                      gradient: LinearGradient(
+                          begin: Alignment.topLeft,
+                          end: Alignment.bottomRight,
+                          colors: [primaryColor, secondaryColor])),
+                  child: TextButton(
+                    style: TextButton.styleFrom(
+                        shadowColor: Color(0xFFd9d9d9),
+                        backgroundColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(16),
+                        )),
+                    onPressed: () {
+                      Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                              builder: (context) => CatalogPage(
+                                  // id_user: id_user,
+                                  )));
+                    },
+                    child: BigText(
+                      text: "Belanja Sekarang",
+                      color: white,
+                      size: 16,
                     ),
                   ),
-                  SizedBox(
-                      width: MediaQuery.of(context).size.width / 2.3,
-                      child: Container(
-                        width: MediaQuery.of(context).size.width,
-                        height: 60,
-                        decoration: BoxDecoration(
-                            color: primaryLight,
-                            borderRadius: BorderRadius.circular(16),
-                            gradient: LinearGradient(
-                                begin: Alignment.topLeft,
-                                end: Alignment.bottomRight,
-                                colors: [primaryColor, secondaryColor])),
-                        child: TextButton(
-                          style: TextButton.styleFrom(
-                              shadowColor: Color(0xFFd9d9d9),
-                              backgroundColor: Colors.transparent,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(16),
-                              )),
-                          onPressed: () {
-                            Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                    builder: (context) => OrderPage(
-                                        // id_user: id_user,
-                                        )));
-                          },
-                          child: BigText(
-                            text: "Check Out",
-                            color: white,
-                            size: 16,
-                          ),
+                )
+              :
+
+              // Container(
+              //     margin: EdgeInsets.only(left: 16, bottom: 12, right: 16),
+              //     width: MediaQuery.of(context).size.width,
+              //     height: 56,
+              //     decoration: BoxDecoration(
+              //         color: primaryLight,
+              //         borderRadius: BorderRadius.circular(16),
+              //         gradient: LinearGradient(
+              //             begin: Alignment.topLeft,
+              //             end: Alignment.bottomRight,
+              //             colors: [primaryColor, secondaryColor])),
+              //     child: TextButton(
+              //       style: TextButton.styleFrom(
+              //           shadowColor: Color(0xFFd9d9d9),
+              //           backgroundColor: Colors.transparent,
+              //           shape: RoundedRectangleBorder(
+              //             borderRadius: BorderRadius.circular(16),
+              //           )),
+              //       onPressed: () {
+              //         if (subtotal == 0) {
+              //           initState();
+              //           Fluttertoast.showToast(msg: "Terjadi kesalahan!");
+              //         } else {
+              //           Navigator.push(
+              //               context,
+              //               MaterialPageRoute(
+              //                   builder: (context) => OrderPage(
+              //                       // id_user: id_user,
+              //                       )));
+              //         }
+              //       },
+              //       child: BigText(
+              //         text: "Order",
+              //         color: white,
+              //         size: 16,
+              //       ),
+              //     ),
+              //   )
+
+              Container(
+                  padding:
+                      EdgeInsets.only(left: 24, top: 10, bottom: 10, right: 16),
+                  color: white,
+                  height: 72,
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: MediaQuery.of(context).size.width / 2.5,
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            SmallText(
+                              text: "Subtotal :",
+                              size: 14,
+                              weight: FontWeight.w500,
+                            ),
+                            SmallText(
+                              text: CurrencyFormat.convertToIdr(subtotal),
+                              size: 16,
+                              weight: FontWeight.w600,
+                              color: primaryColor,
+                            ),
+                          ],
                         ),
-                      ))
-                ],
-              )),
+                      ),
+                      SizedBox(
+                          width: MediaQuery.of(context).size.width / 2.3,
+                          child: Container(
+                            width: MediaQuery.of(context).size.width,
+                            height: 60,
+                            decoration: BoxDecoration(
+                                color: primaryLight,
+                                borderRadius: BorderRadius.circular(16),
+                                gradient: LinearGradient(
+                                    begin: Alignment.topLeft,
+                                    end: Alignment.bottomRight,
+                                    colors: [primaryColor, secondaryColor])),
+                            child: TextButton(
+                              style: TextButton.styleFrom(
+                                  shadowColor: Color(0xFFd9d9d9),
+                                  backgroundColor: Colors.transparent,
+                                  shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(16),
+                                  )),
+                              onPressed: () {
+                                Navigator.pushReplacement(
+                                    context,
+                                    MaterialPageRoute(
+                                        builder: (context) => OrderPage(
+                                            // id_user: id_user,
+                                            )));
+                              },
+                              child: BigText(
+                                text: "Check Out",
+                                color: white,
+                                size: 16,
+                              ),
+                            ),
+                          ))
+                    ],
+                  )),
 
       // body: SafeArea(
       //     child: Stack(

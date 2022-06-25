@@ -2,13 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import 'package:main/API/api_services.dart';
-import 'package:main/pages/home/home_page.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/utils/textstyle.dart';
-import 'package:main/widgets/big_text.dart';
-import 'package:main/widgets/product_text.dart';
-import 'package:main/widgets/small_text.dart';
+import 'package:bumdeskm/API/api_services.dart';
+import 'package:bumdeskm/pages/home/home_page.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/utils/textstyle.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
+import 'package:bumdeskm/widgets/product_text.dart';
+import 'package:bumdeskm/widgets/small_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SendReviewPage extends StatefulWidget {

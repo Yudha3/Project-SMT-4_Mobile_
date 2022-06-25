@@ -3,13 +3,13 @@ import 'dart:ui';
 import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:flutter/material.dart';
-import 'package:main/API/api_services.dart';
-import 'package:main/pages/home/home_page.dart';
-import 'package:main/pages/main_page.dart';
-import 'package:main/pages/register_page.dart';
-import 'package:main/utils/colors.dart';
-import 'package:main/utils/textstyle.dart';
-import 'package:main/widgets/big_text.dart';
+import 'package:bumdeskm/API/api_services.dart';
+import 'package:bumdeskm/pages/home/home_page.dart';
+import 'package:bumdeskm/pages/main_page.dart';
+import 'package:bumdeskm/pages/register_page.dart';
+import 'package:bumdeskm/utils/colors.dart';
+import 'package:bumdeskm/utils/textstyle.dart';
+import 'package:bumdeskm/widgets/big_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginPage extends StatefulWidget {
@@ -246,6 +246,8 @@ class _LoginPageState extends State<LoginPage> {
     var body = json.decode(res.body);
     var id = body['id'];
     if (body['success']) {
+      print(id);
+      // SharedPreferences localStorage = await SharedPreferences.getInstance();
       SharedPreferences localStorage = await SharedPreferences.getInstance();
       localStorage.setString('token', json.encode(body['token']));
       localStorage.setString('user', json.encode(body['user']));
@@ -254,6 +256,9 @@ class _LoginPageState extends State<LoginPage> {
       // localStorage.setInt('subtotal', id);
       // localStorage.
 
+      setState(() {
+        _isLoading = false;
+      });
       Navigator.pushReplacement(
         context,
         new MaterialPageRoute(builder: (context) => HomePage()),
@@ -263,11 +268,10 @@ class _LoginPageState extends State<LoginPage> {
       //     MaterialPageRoute(builder: (context) => MainPage()),
       //     (Route<dynamic> route) => false);
     } else {
-      _showMsg(body['message']);
+      setState(() {
+        _isLoading = false;
+      });
+      _showMsg("Email atau Password salah!");
     }
-
-    setState(() {
-      _isLoading = false;
-    });
   }
 }
